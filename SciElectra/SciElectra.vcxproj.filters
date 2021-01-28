@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{21593158-ba56-42b1-923e-14120a1d0631}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Public Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source\Private Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{5d982b37-aa5e-4f8a-b696-5e403120d763}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Private\WinMain.cpp">
+      <Filter>Source\Private Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Window.cpp">
+      <Filter>Source\Private Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\SciElectra2D.cpp">
+      <Filter>Source\Private Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Private\Electra2D.cpp">
+      <Filter>Source\Private Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Source\Public\Window.h">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\WinMain.h">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\SciElectra2D.h">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Electra2D.h">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
