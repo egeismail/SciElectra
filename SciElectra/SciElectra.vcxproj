@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Private\elecmath.cpp" />
     <ClCompile Include="Source\Private\Electra2D.cpp" />
     <ClCompile Include="Source\Private\SciElectra2D.cpp" />
     <ClCompile Include="Source\Private\Window.cpp" />
     <ClCompile Include="Source\Private\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Source\Public\elecmath.h" />
     <ClInclude Include="Source\Public\Electra2D.h" />
     <ClInclude Include="Source\Public\SciElectra2D.h" />
     <ClInclude Include="Source\Public\Window.h" />

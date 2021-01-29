@@ -210,8 +210,8 @@ void SciElectra2D::test()
     Entity entity1, entity2;
     entity1.type = DrawTypes::Circle;
     entity2.type = DrawTypes::Circle;
-    entity1.pos = XMFLOAT2(0.6f * windowRect.right / 2.f, windowRect.bottom / 2.f - circle1.radius / 2);
-    entity2.pos = XMFLOAT2(1.4f * windowRect.right / 2.f, windowRect.bottom / 2.f - circle2.radius / 2);
+    entity1.pos = Vector2(0.6f * windowRect.right / 2.f, windowRect.bottom / 2.f - circle1.radius / 2);
+    entity2.pos = Vector2(1.4f * windowRect.right / 2.f, windowRect.bottom / 2.f - circle2.radius / 2);
     entity1.object = &circle1;
     entity2.object = &circle2;
     this->electra.addEntity(entity1);

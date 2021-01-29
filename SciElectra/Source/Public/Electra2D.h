@@ -1,17 +1,17 @@
 #pragma once
 #include <d2d1.h>
-#include <DirectXMath.h>
 #include <list>
-using namespace DirectX;
+#include "elecmath.h"
 #define ENTITY_LIMIT 1024
-#define GRAVITATIONAL_CONSTANT 6.67430e-11f
 enum DrawTypes
 {
 	Circle=0x0
 };
 enum Rules {
-	NewtonianGravity=0x1,
-	Collision = 0x2,
+	MultiEffect = 0x1, // When calculating velocity in some rules, calculates affecting and affected entities in same tick
+					   // I do not decided which one better calculates but until i will close
+	NewtonianGravity=0x2,
+	Collision = 0x4,
 	CollisionWindow = 0x80000000,
 };
 struct Object {
@@ -22,8 +22,9 @@ struct ObjectCircle : Object{
 };
 struct Entity {
 	unsigned char type;
-	XMFLOAT2 pos;
-	float angle;
+	Vector2 pos;
+	Vector2 velocity;
+	float mass;
 	Object *object;
 };
 class Electra2D
@@ -31,7 +32,7 @@ class Electra2D
 public:
 	Electra2D();
 	~Electra2D();
-	size_t Rules = 0b0;
+	size_t Rules = 0b110;
 	int Tick();
 	std::list<Entity> entities;
 	/*Interaction*/

@@ -29,6 +29,9 @@
     <ClCompile Include="Source\Private\Electra2D.cpp">
       <Filter>Source\Private Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Private\elecmath.cpp">
+      <Filter>Source\Private Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Public\Window.h">
@@ -41,6 +44,9 @@
       <Filter>Source\Public Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Public\Electra2D.h">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\elecmath.h">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
   </ItemGroup>

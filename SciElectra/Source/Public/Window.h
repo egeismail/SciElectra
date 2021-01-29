@@ -6,8 +6,8 @@
 #define MAX_CLASS_NAME_LENGTH 256
 #define HInstance() GetModuleHandle(NULL)
 
-static const INT     WindowWidth = 800;
-static const INT     WindowHeight = 600;
+static const INT     WindowWidth = 1280;
+static const INT     WindowHeight = 720;
 class Window
 {
 public:
