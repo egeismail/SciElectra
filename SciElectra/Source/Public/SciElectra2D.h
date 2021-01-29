@@ -2,10 +2,10 @@
 #pragma comment(lib, "d2d1")
 #define HARDWARE_ACC props.type = D2D1_RENDER_TARGET_TYPE::D2D1_RENDER_TARGET_TYPE_HARDWARE
 #define CPU props.type = D2D1_RENDER_TARGET_TYPE::D2D1_RENDER_TARGET_TYPE_DEFAULT
+#define SE2D_INITIALIZE WM_USER+1
 #include <d2d1.h>
 #include "Window.h"
 #include "Electra2D.h"
-
 
 
 class SciElectra2D

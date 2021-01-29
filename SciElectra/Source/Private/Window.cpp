@@ -5,17 +5,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_CLOSE:
         PostQuitMessage(0);
         break;
-    case WM_KEYDOWN:
-        if (wParam == 0x48) {
-            MessageBox(hWnd, L"Evetttt", L"Test", MB_OK);
-        }
-        break;
 
-    case WM_CHAR:
-        static std::string title;
-        title.push_back((char)wParam);
-        SetWindowTextA(hWnd, ((LPCSTR)title.c_str()));
-        break;
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
@@ -125,11 +115,12 @@ BOOL Window::listenMessages() {
 BOOL Window::listenMessage(MSG* message) {
     MSG msg = { 0 };
     BOOL gResult;
-    if (gResult = PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
+    if (gResult = PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+        *message = msg;
+
     }
-    *message = msg;
     return gResult != -1 ? msg.message != WM_QUIT : -1;
 }
 BOOL Window::listenMessageWp(MSG* message) {
