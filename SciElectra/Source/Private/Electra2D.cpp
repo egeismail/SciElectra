@@ -16,6 +16,8 @@ int Electra2D::Tick()
 		this->NewtonianGravity();
 	if (this->Rules & Rules::Collision)
 		this->Collision();
+	this->ProcessPosition();
+	std::list<Entity>::iterator itr = this->entities.begin();
 	return 0;
 }
 
@@ -30,33 +32,44 @@ int Electra2D::addEntity(Entity entity)
 int Electra2D::removeEntity(size_t id)
 {
 	std::list<Entity>::iterator it;
-	for (const Entity entity: entities) {
+	for (std::list<Entity>::iterator entity = entities.begin(); entity != entities.end();++entity) {
 		it++;
-		if (entity.object->id == id)
+		if (entity->object->id == id)
 			entities.erase(it);
 	}
 	return 0;
 }
+int Electra2D::ProcessPosition() {
+	for (std::list<Entity>::iterator entity = entities.begin();entity != entities.end();++entity)
+	{
+		if(entity->velocity.x != NAN && entity->velocity.y != NAN){
+			entity->pos += entity->velocity;
+		}
+	}
+	return 0;
+
+}
 int Electra2D::NewtonianGravity()
 {
-	for (Entity affecting : entities) {
-		for (Entity affected : entities) {
-			Vector2 diff = affecting.pos - affected.pos;
-			Angle toAffecting = atan2f(diff.y, diff.x);
-			Angle toAffected(toAffecting.pitch + PI);
+	for (std::list<Entity>::iterator affecting = entities.begin(); affecting != entities.end(); ++affecting) {
+		for (std::list<Entity>::iterator affected = entities.begin(); affected != entities.end(); ++affected) {
+			if (affecting->object->id == affected->object->id) continue;
+			Vector2 diff = affecting->pos - affected->pos;
+			Angle toAffected = atan2f(diff.y, diff.x);
+			Angle toAffecting(toAffected.pitch + PI);
 			
 			float radius = diff.getLength();
-			float force = (affecting.mass * affected.mass *GRAVITATIONAL_CONSTANT) /
+			float force = (affecting->mass * affected->mass *GRAVITATIONAL_CONSTANT) /
 				(radius * radius);
-			float acc = force / affected.mass;
-			affected.pos += Vector2(
+			float acc = force / affected->mass;
+			affected->velocity += Vector2(
 				acc * cosf(toAffected.pitch),
 				acc * sinf(toAffected.pitch)
 			);
 			
 			if (this->Rules & Rules::MultiEffect) {
-				acc = force / affecting.mass;
-				affecting.pos += Vector2(
+				acc = force / affecting->mass;
+				affecting->velocity += Vector2(
 					acc * cosf(toAffected.pitch),
 					acc * sinf(toAffected.pitch)
 				);
@@ -66,6 +79,7 @@ int Electra2D::NewtonianGravity()
 	}
 	return 0;
 }
+
 
 int Electra2D::Collision()
 {

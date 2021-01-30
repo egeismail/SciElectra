@@ -9,7 +9,27 @@ static SciElectra2D simulation;
 static Window root(L"SciElectra Alpha");
 int CALLBACK WinMain(HINSTANCE,HINSTANCE,LPSTR,INT){
     simulation.InitializeWindow(&root);
-    simulation.test(); // Test Scene
+    RECT windowRect;
+    GetWindowRect(root.hWnd, &windowRect);
+    ObjectCircle circle1, circle2;
+    circle1.radius = 5;
+    circle2.radius = 10;
+    Entity entity1(
+        Vector2(1 * windowRect.right / 2.f, windowRect.bottom / 2.f - circle1.radius / 2),
+        Vector2(0, 0),
+        1498284464200.8839,
+        &circle1,
+        DrawTypes::Circle
+    ),
+           entity2(
+        Vector2(1.1f * windowRect.right / 2.f, windowRect.bottom / 2.f - circle2.radius / 2),
+        Vector2(0,1),
+        1,
+        &circle2,
+        DrawTypes::Circle
+    );
+    simulation.electra.addEntity(entity1);
+    simulation.electra.addEntity(entity2);
     return simulation.Start();
 }
 

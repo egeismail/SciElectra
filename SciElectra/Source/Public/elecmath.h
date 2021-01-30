@@ -4,7 +4,7 @@
 #define PI 3.1415926535926535
 struct Vector2
 {
-	float x, y;
+	float x=0, y=0;
     Vector2(float x_ = 0, float y_ = 0) {x = x_;y = y_;}
     float getLength() {
         return sqrt((float)(x * x + y * y));
