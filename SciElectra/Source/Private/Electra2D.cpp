@@ -1,4 +1,4 @@
-#include "../Public/Electra2D.h"
+#include "../Public/Electra2D.hpp"
 Electra2D::Electra2D()
 {
 }

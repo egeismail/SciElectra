@@ -1,7 +1,7 @@
 #pragma once
 #include <d2d1.h>
 #include <list>
-#include "elecmath.h"
+#include "elecmath.hpp"
 #define ENTITY_LIMIT 1024
 enum DrawTypes
 {
@@ -33,6 +33,13 @@ struct Entity {
 		mass = mass_;
 		object = obj;
 		type = type_;
+	}
+	bool isRenderable(D2D1_SIZE_F size) {
+		if (type == DrawTypes::Circle) {
+			float radius = ((ObjectCircle*)object)->radius;
+			return (radius+size.width/2)>abs(pos.x)&&(radius+size.height/2)>abs(pos.y);
+		}
+		return true;
 	}
 };
 class Electra2D

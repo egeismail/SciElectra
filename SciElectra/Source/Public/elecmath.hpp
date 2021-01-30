@@ -1,15 +1,16 @@
 #pragma once
+#include <d2d1.h>
 #include <math.h>
 #define GRAVITATIONAL_CONSTANT 6.67430e-11f
 #define PI 3.1415926535926535
+
 struct Vector2
 {
-	float x=0, y=0;
+	float x, y;
     Vector2(float x_ = 0, float y_ = 0) {x = x_;y = y_;}
     float getLength() {
         return sqrt((float)(x * x + y * y));
     }
-    
     Vector2& operator+=(Vector2 const& other) {
         x += other.x;
         y += other.y;

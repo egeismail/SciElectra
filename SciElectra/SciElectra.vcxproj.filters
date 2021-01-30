@@ -32,21 +32,27 @@
     <ClCompile Include="Source\Private\elecmath.cpp">
       <Filter>Source\Private Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Private\Keyboard.cpp">
+      <Filter>Source\Private Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Public\Window.h">
+    <ClInclude Include="Source\Public\elecmath.hpp">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\WinMain.h">
+    <ClInclude Include="Source\Public\Electra2D.hpp">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\SciElectra2D.h">
+    <ClInclude Include="Source\Public\SciElectra2D.hpp">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\Electra2D.h">
+    <ClInclude Include="Source\Public\Window.hpp">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\elecmath.h">
+    <ClInclude Include="Source\Public\WinMain.hpp">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Keyboard.hpp">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
   </ItemGroup>

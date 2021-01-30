@@ -21,16 +21,18 @@
   <ItemGroup>
     <ClCompile Include="Source\Private\elecmath.cpp" />
     <ClCompile Include="Source\Private\Electra2D.cpp" />
+    <ClCompile Include="Source\Private\Keyboard.cpp" />
     <ClCompile Include="Source\Private\SciElectra2D.cpp" />
     <ClCompile Include="Source\Private\Window.cpp" />
     <ClCompile Include="Source\Private\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Public\elecmath.h" />
-    <ClInclude Include="Source\Public\Electra2D.h" />
-    <ClInclude Include="Source\Public\SciElectra2D.h" />
-    <ClInclude Include="Source\Public\Window.h" />
-    <ClInclude Include="Source\Public\WinMain.h" />
+    <ClInclude Include="Source\Public\elecmath.hpp" />
+    <ClInclude Include="Source\Public\Electra2D.hpp" />
+    <ClInclude Include="Source\Public\Keyboard.hpp" />
+    <ClInclude Include="Source\Public\SciElectra2D.hpp" />
+    <ClInclude Include="Source\Public\Window.hpp" />
+    <ClInclude Include="Source\Public\WinMain.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

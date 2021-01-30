@@ -1,4 +1,4 @@
-#include "../Public/SciElectra2D.h"
+#include "../Public/SciElectra2D.hpp"
 #define DFC(x) (forDebug & x) == 0 
 #define DF(x)   forDebug |= x
 template<class Interface>
@@ -139,8 +139,6 @@ BOOL SciElectra2D::Start()
         /*Events*/
         MSG msg;
         BOOL hResult = this->root->listenMessage(&msg);
-        //dat = "RECT: " + std::to_string(windowRectangle.top) + ":" + std::to_string(windowRectangle.right) + ":" + std::to_string(windowRectangle.bottom) + ":" + std::to_string(windowRectangle.left) + "\n";
-        ProcessMsgEvent(msg);
         sTime = steady_clock::now();
         if (hResult == 0)
             return 0;/*WM_QUIT*/
@@ -161,9 +159,9 @@ BOOL SciElectra2D::Start()
             swprintf_s(FPSText, DEBUG_TEXT_LENGTH,    L"FPS          : %f", fps);
             swprintf_s(ElapsedTime, DEBUG_TEXT_LENGTH, L"Elapsed Time : %f", simElapsedTime);
             std::list<Entity>::iterator itr = this->electra.entities.begin();
-            swprintf_s(E1, DEBUG_TEXT_LENGTH, L"Entity1 : x:%f,y:%f,m:%f", itr->pos.x, itr->pos.y, itr->mass);
+            swprintf_s(E1, DEBUG_TEXT_LENGTH, L"Entity1 : x:%f,y:%f,m:%f,r:%d", itr->pos.x, itr->pos.y, itr->mass,itr->isRenderable(rtSize));
             itr++;
-            swprintf_s(E2, DEBUG_TEXT_LENGTH, L"Entity2 : x:%f,y:%f,m:%f", itr->pos.x, itr->pos.y, itr->mass);
+            swprintf_s(E2, DEBUG_TEXT_LENGTH, L"Entity2 : x:%f,y:%f,m:%f,r:%d", itr->pos.x, itr->pos.y, itr->mass,itr->isRenderable(rtSize));
             this->SetDebugText(FPSText, 1);
             this->SetDebugText(ElapsedTime, 2);
             this->SetDebugText(E1, 3);
@@ -180,10 +178,10 @@ BOOL SciElectra2D::Render() {
     hr =CreateDeviceResources();
     if (SUCCEEDED(hr))
     {
+        rtSize = pRT->GetSize();
         pRT->BeginDraw();
         pRT->SetTransform(D2D1::Matrix3x2F::Identity());
         pRT->Clear(D2D1::ColorF(0x0));
-        D2D1_SIZE_F rtSize = pRT->GetSize();
         this->DrawObjects();
         this->DrawDebugText();
         hr = pRT->EndDraw();
@@ -198,7 +196,6 @@ BOOL SciElectra2D::Render() {
 
 }
 int SciElectra2D::DrawDebugText() {
-    D2D1_SIZE_F renderTargetSize = pRT->GetSize();
     size_t sizeBuffer;
     std::wstring textBuffer;
     for (size_t k=0;k<debugTextIterator;++k)
@@ -208,7 +205,7 @@ int SciElectra2D::DrawDebugText() {
         textBuffer = textBuffer + buffer + TEXT("\n");
     }
     size_t length = wcslen(textBuffer.c_str());
-    pRT->DrawTextW(textBuffer.c_str(), length, textFormat, D2D1::RectF(0, 0, renderTargetSize.width, renderTargetSize.height), pDebugText);
+    pRT->DrawTextW(textBuffer.c_str(), length, textFormat, D2D1::RectF(0, 0, rtSize.width, rtSize.height), pDebugText);
     //pRT->DrawRectangle(D2D1::RectF(0, 0, renderTargetSize.width, renderTargetSize.height), pObject);
     return 0;
 
@@ -216,13 +213,13 @@ int SciElectra2D::DrawDebugText() {
 int SciElectra2D::DrawObjects() {
     for (Entity entity : electra.entities)
     {
-        if (entity.type == DrawTypes::Circle) {
+        if (entity.type == DrawTypes::Circle && entity.isRenderable(rtSize)) {
             char ODB[200];
             ObjectCircle* obj;
             obj = (ObjectCircle*)entity.object;
-            //obj = *(ObjectCircle**)entity.object;
-            //OutputDebugStringA((LPSTR)sprintf_s(ODB,"id:%d x:%f y:%f\n", obj->id,entity.pos.x, entity.pos.y));
-            D2D1_ELLIPSE Circle = D2D1::Ellipse(D2D1::Point2F(entity.pos.x, entity.pos.y), obj->radius, obj->radius);
+            Vector2 repos = entity.pos - CameraPos;
+            D2D1_POINT_2F rPos = D2D1::Point2F(repos.x + rtSize.width / 2, rtSize.height / 2-repos.y);
+            D2D1_ELLIPSE Circle = D2D1::Ellipse(rPos, obj->radius, obj->radius);
             pRT->FillEllipse(&Circle, pObject);
         }
     }
@@ -232,7 +229,13 @@ static SciElectra2D* hook = NULL;;
 LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (hook != NULL) {
-        switch (msg) {
+        MSG message;
+        message.hwnd = hWnd;
+        message.message = msg;
+        message.wParam = wParam;
+        message.lParam = lParam;
+        hook->ProcessMsgEvent(message);
+        /*switch (msg) {
 
         case WM_CLOSE:
             PostQuitMessage(0);
@@ -242,14 +245,8 @@ LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
             UINT height = HIWORD(lParam);
             hook->ResizeEvent(width, height);
             break;
-            /*default:
-                std::string dat;
-                if (msg == 160 || msg == 0 || msg == 512) goto nothing;
-                dat = "msg: " + std::to_string(msg)+"\n";
-                OutputDebugStringA((LPSTR)dat.c_str());
-                nothing:
-                break;*/
-        }
+                
+        }*/
     }
     else {
         if (msg == WM_CLOSE)
@@ -265,10 +262,47 @@ LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 #pragma endregion
 #pragma region Events
 BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
+    static bool controlPress=false;
     switch (msg.message) {
-    case WM_CLOSE:
-        PostQuitMessage(0);
-        break;
+        case WM_CLOSE:
+            DiscardDeviceResources();
+            PostQuitMessage(0);
+            break;
+        //case WM_KEYDOWN:
+        //    // syskey commands need to be handled to track ALT key (VK_MENU) and F10
+        //case WM_SYSKEYDOWN:
+        //    // stifle this keyboard message if imgui wants to capture
+        //    if (imio.WantCaptureKeyboard)
+        //    {
+        //        break;
+        //    }
+        //    if (!(lParam & 0x40000000) || kbd.AutorepeatIsEnabled()) // filter autorepeat
+        //    {
+        //        kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
+        //    }
+        //    break;
+        //case WM_KEYUP:
+        //case WM_SYSKEYUP:
+        //    // stifle this keyboard message if imgui wants to capture
+        //    if (imio.WantCaptureKeyboard)
+        //    {
+        //        break;
+        //    }
+        //    kbd.OnKeyReleased(static_cast<unsigned char>(wParam));
+        //    break;
+        //case WM_CHAR:
+        //    // stifle this keyboard message if imgui wants to capture
+        //    if (imio.WantCaptureKeyboard)
+        //    {
+        //        break;
+        //    }
+        //    kbd.OnChar(static_cast<unsigned char>(wParam));
+        //    break;
+        case WM_SIZE:
+            UINT width = LOWORD(msg.lParam);
+            UINT height = HIWORD(msg.lParam);
+            hook->ResizeEvent(width, height);
+            break;
     }
     return 0;
 }

@@ -1,4 +1,4 @@
-#include "../Public/Window.h"
+#include "../Public/Window.hpp"
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     switch (msg) {
