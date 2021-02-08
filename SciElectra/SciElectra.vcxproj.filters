@@ -15,6 +15,12 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{5d982b37-aa5e-4f8a-b696-5e403120d763}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\imgui">
+      <UniqueIdentifier>{467af11d-bd89-4fde-b9cf-bd17b1851bfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\imgui\backends">
+      <UniqueIdentifier>{687e0f2e-bc9b-4925-a723-1f1b9d1df3ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Private\WinMain.cpp">
@@ -35,6 +41,24 @@
     <ClCompile Include="Source\Private\Keyboard.cpp">
       <Filter>Source\Private Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\imgui\imgui.cpp">
+      <Filter>Source\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\imgui_draw.cpp">
+      <Filter>Source\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\imgui_tables.cpp">
+      <Filter>Source\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\imgui_widgets.cpp">
+      <Filter>Source\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\backends\imgui_impl_win32.cpp">
+      <Filter>Source\imgui\backends</Filter>
+    </ClCompile>
+    <ClCompile Include="..\imgui\backends\imgui_impl_dx10.cpp">
+      <Filter>Source\imgui\backends</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Public\elecmath.hpp">
@@ -54,6 +78,30 @@
     </ClInclude>
     <ClInclude Include="Source\Public\Keyboard.hpp">
       <Filter>Source\Public Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imconfig.h">
+      <Filter>Source\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imgui.h">
+      <Filter>Source\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imgui_internal.h">
+      <Filter>Source\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imstb_rectpack.h">
+      <Filter>Source\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imstb_textedit.h">
+      <Filter>Source\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\imstb_truetype.h">
+      <Filter>Source\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\backends\imgui_impl_win32.h">
+      <Filter>Source\imgui\backends</Filter>
+    </ClInclude>
+    <ClInclude Include="..\imgui\backends\imgui_impl_dx10.h">
+      <Filter>Source\imgui\backends</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -4,7 +4,6 @@
 #include "./../Public/SciElectra2D.hpp"
 #include <d2d1.h>
 #include <iostream>
-// the entry point for any Windows program
 static SciElectra2D simulation;
 static Window root(L"SciElectra Alpha");
 int CALLBACK WinMain(HINSTANCE,HINSTANCE,LPSTR,INT){
