@@ -56,7 +56,7 @@ HRESULT SciElectra2D::InitializeWindow(Window* root)
     this->AddDebugText(TEXT("Entity1      : x:0,y:0,m:0"));
     this->AddDebugText(TEXT("Entity2      : x:0,y:0,m:0"));
 #endif
-    /*Configure ImDuı Colors*/
+    /*Configure ImDu� Colors*/
     return lr ? S_OK : S_FALSE;
 }
 #pragma endregion

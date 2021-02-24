@@ -15,6 +15,12 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{5d982b37-aa5e-4f8a-b696-5e403120d763}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\imgui">
+      <UniqueIdentifier>{467af11d-bd89-4fde-b9cf-bd17b1851bfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\imgui\backends">
+      <UniqueIdentifier>{687e0f2e-bc9b-4925-a723-1f1b9d1df3ff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Private\WinMain.cpp">
