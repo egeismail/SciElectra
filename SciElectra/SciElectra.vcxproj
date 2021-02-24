@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Private\elecmath.cpp" />
     <ClCompile Include="Source\Private\Electra2D.cpp" />
+    <ClCompile Include="Source\Private\ImDui.cpp" />
     <ClCompile Include="Source\Private\Keyboard.cpp" />
     <ClCompile Include="Source\Private\SciElectra2D.cpp" />
     <ClCompile Include="Source\Private\Window.cpp" />
@@ -29,6 +30,7 @@
   <ItemGroup>
     <ClInclude Include="Source\Public\elecmath.hpp" />
     <ClInclude Include="Source\Public\Electra2D.hpp" />
+    <ClInclude Include="Source\Public\ImDui.h" />
     <ClInclude Include="Source\Public\Keyboard.hpp" />
     <ClInclude Include="Source\Public\SciElectra2D.hpp" />
     <ClInclude Include="Source\Public\Window.hpp" />
@@ -99,6 +101,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>D:\Desktop\Repos\2021\SciElectra\ImDui\ImDui;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -150,12 +153,14 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalIncludeDirectories>D:\Desktop\Repos\2021\SciElectra\ImDui\ImDui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Desktop\Repos\2021\SciElectra\ImDui\ImDui;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

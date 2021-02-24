@@ -1,3 +1,4 @@
+#define OEMRESOURCE 
 #include <windows.h>    // include the basic windows header file
 #include "./../Public/WinMain.hpp"
 #include "./../Public/Window.hpp"

@@ -34,13 +34,14 @@ struct Entity {
 		object = obj;
 		type = type_;
 	}
-	bool isRenderable(D2D1_SIZE_F size) {
+	bool isRenderable(D2D1_SIZE_F size,Vector2 camera) {
 		if (type == DrawTypes::Circle) {
 			float radius = ((ObjectCircle*)object)->radius;
-			return (radius+size.width/2)>abs(pos.x)&&(radius+size.height/2)>abs(pos.y);
+			return (radius+size.width/2)>abs(pos.x-camera.x)&&(radius+size.height/2)>abs(pos.y-camera.y);
 		}
 		return true;
 	}
+
 };
 class Electra2D
 {

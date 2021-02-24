@@ -1,8 +1,12 @@
 #pragma once
 #include <d2d1.h>
 #include <math.h>
+#define Vector(x,y) Vector2(x,y)
+#define Angle(pitch) Angle(pitch)
 #define GRAVITATIONAL_CONSTANT 6.67430e-11f
 #define PI 3.1415926535926535
+
+
 
 struct Vector2
 {

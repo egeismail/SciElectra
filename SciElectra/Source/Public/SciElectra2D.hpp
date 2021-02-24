@@ -7,6 +7,7 @@
 #include <chrono>
 #include "Window.hpp"
 #include "Electra2D.hpp"
+#include "ImDui.h"
 using namespace std::chrono;
 #define HARDWARE_ACC props.type = D2D1_RENDER_TARGET_TYPE::D2D1_RENDER_TARGET_TYPE_HARDWARE
 #define CPU props.type = D2D1_RENDER_TARGET_TYPE::D2D1_RENDER_TARGET_TYPE_DEFAULT
@@ -49,10 +50,14 @@ public:
 	ID2D1Factory* d2d1factory = NULL;
 	IDWriteFactory* writeFactory;
 	IDWriteTextFormat* textFormat;
+	IWICImagingFactory* imagingFactory;
 	ID2D1HwndRenderTarget* pRT;
 	ID2D1SolidColorBrush* pObject = NULL;
 	ID2D1SolidColorBrush* pBlack = NULL;
 	ID2D1SolidColorBrush* pDebugText = NULL;
+	ID2D1SolidColorBrush* pGrid = NULL;
+	int RegisterWindows();
+
 #pragma endregion
 #pragma region Render
 	BOOL Render();
@@ -65,9 +70,27 @@ public:
 	D2D1_SIZE_F rtSize;
 	steady_clock::time_point simulationStartTime, sTime, eTime;
 	steady_clock::duration elapsedTime, frameTime;
+	double fps,eT;
 	Vector2 CameraPos;
+	float zoom = 1;
+	POINT WorldToScreen(Vector2 Pos);
+	Vector2 ScreenToWorld(POINT Pos);
+	bool showGrids;
+	int ShowGrids();
 #pragma endregion
-
+	bool controlDown;
+	bool mouseLeftDown;
+	int  deltaMouseWheel;
+	POINT mousePos;
+	POINT deltaMousePos;
+//Delta By Distance
+	bool dbs_initiated;
+	Vector2 dbs_startPointCamera;
+	POINT dbs_startPoint;
+	POINT dbs_endPoint;
+	POINT dbs_distance;
+	const float MovementAnimDuration = 1.0f;
+	const float ZoomAnimDuration = 1.0f;
 	
 
 	

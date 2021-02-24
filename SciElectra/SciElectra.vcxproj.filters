@@ -35,6 +35,9 @@
     <ClCompile Include="Source\Private\Keyboard.cpp">
       <Filter>Source\Private Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Private\ImDui.cpp">
+      <Filter>Source\Private Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Public\elecmath.hpp">
@@ -53,6 +56,9 @@
       <Filter>Source\Public Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Public\Keyboard.hpp">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\ImDui.h">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
   </ItemGroup>
