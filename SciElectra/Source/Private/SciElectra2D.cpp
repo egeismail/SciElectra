@@ -53,10 +53,8 @@ HRESULT SciElectra2D::InitializeWindow(Window* root)
     this->AddDebugText(TEXT("SciElectra Alpha"));
     this->AddDebugText(TEXT("FPS          : 0"));
     this->AddDebugText(TEXT("Elapsed Time : 0"));
-    this->AddDebugText(TEXT("Entity1      : x:0,y:0,m:0"));
-    this->AddDebugText(TEXT("Entity2      : x:0,y:0,m:0"));
 #endif
-    /*Configure ImDu� Colors*/
+    /*Configure ImDui Colors*/
     return lr ? S_OK : S_FALSE;
 }
 #pragma endregion
@@ -129,6 +127,11 @@ HRESULT SciElectra2D::CreateDeviceResources()
             &this->textFormat
         );
         if (SUCCEEDED(hr)) ImDui::InitResources(d2d1factory, writeFactory, imagingFactory, pRT);
+        if (SUCCEEDED(hr)) {
+            windowSize = pRT->GetSize();
+			WindowRectUpdate();
+
+        }
     }
 
     return hr;
@@ -147,20 +150,31 @@ float cubicBezier(float y1, float y2, float normalized) {
 }
 POINT SciElectra2D::WorldToScreen(Vector2 Pos)
 {
-    D2D1_SIZE_F size = pRT->GetSize();
-    Vector2 cPos = (Pos - CameraPos)/zoom;
+    Vector2 cPos = (Pos - CameraPos)*zoom;
     POINT ScreenPos;
-	ScreenPos.x = cPos.x - size.width / 2;
-	ScreenPos.y = cPos.y + size.height/ 2;
+	ScreenPos.x = cPos.x + windowSize.width / 2;
+	ScreenPos.y = -(cPos.y - windowSize.height/ 2);
     return ScreenPos;
 }
 Vector2 SciElectra2D::ScreenToWorld(POINT Pos)
 {
-	D2D1_SIZE_F size = pRT->GetSize();
-	Vector2 sPos(Pos.x, Pos.y);
-    sPos.x -= size.width / 2;
-    sPos.y += size.height / 2;
-    return (sPos/zoom) + CameraPos;
+	Vector2 sPos(Pos.x, -Pos.y);
+    sPos.x -= windowSize.width / 2;
+    sPos.y += windowSize.height / 2;
+    Vector2 rPos = (sPos / zoom) + CameraPos;
+    return rPos;
+}
+int SciElectra2D::WindowRectUpdate()
+{
+	/*UPDATE WORLD RECT*/
+	POINT ptS, ptE;
+	ptE.x = windowSize.width;
+	ptE.y = windowSize.height;
+	ptS.x = 0;
+	ptS.y = 0;
+	Vector2 ptS_ = ScreenToWorld(ptS), ptE_ = ScreenToWorld(ptE);
+	windowWorldRect = D2D1_RECT_F(D2D1::RectF(ptS_.x, ptS_.y, ptE_.x, ptE_.y));
+    return 0;
 }
 int SciElectra2D::ShowGrids() {
     if (!showGrids)
@@ -184,29 +198,9 @@ BOOL SciElectra2D::Start()
             return -1;/*ERROR*/
         /*Physics*/
         this->electra.Tick();
-        /*CameraPos*/
+        /*Interactions*/
         static float animIntegrate = 0;
-        if (controlDown && mouseLeftDown) {
-            if (!dbs_initiated) {
-                dbs_initiated = true;
-                dbs_startPointCamera = CameraPos;
-                dbs_startPoint = mousePos;
-            }
-            else {
-                /*if (deltaMousePos.x > 1 || deltaMousePos.y > 1) {
-                    animIntegrate = 0;
-                }*/
-                dbs_endPoint = mousePos;
-                dbs_distance.x = dbs_endPoint.x - dbs_startPoint.x;
-                dbs_distance.y = dbs_endPoint.y - dbs_startPoint.y;
-                //animIntegrate +=  eT;
-                //float tY  = cubicBezier(.35,.9, animIntegrate);
-                CameraPos = (dbs_startPointCamera - Vector(dbs_distance.x / zoom, -dbs_distance.y / zoom));
-            }
-        }
-        else {
-            dbs_initiated = false;
-        }
+        ExecuteInteractions();
         /*Drawing*/
         this->Render();
         eTime = steady_clock::now();
@@ -238,12 +232,47 @@ BOOL SciElectra2D::Start()
  BBBBBBBBBBBBBBBBIIIIIIIIIIIIIIIIG TOODOOOO
     MAKE CAMERA POS MOVEMENT x^2 LIKE
 */
-static bool ShowDebugWindow = true,
-            ShowSimulationSettings = false,
-            ShowGraphicalSettings = false,
-            ShowObjectManager = false,
-            ShowStyleEditor = false;
 int SciElectra2D::RegisterWindows() {
+    for (std::list<Entity>::iterator entity = this->electra.entities.begin(); entity != electra.entities.end(); entity++)
+    {
+        if (entity->UIVisible) {
+            if (entity->type == DrawTypes::Circle) {
+                std::ostringstream st;
+                ObjectCircle* objCircle = (ObjectCircle*)entity->object;
+                st << "Object - " << objCircle->id;
+                POINT pos = WorldToScreen(entity->pos);
+                ImDui::BeginWindow(st.str().c_str(), &entity->UIVisible, ImFloat2((float)pos.x, (float)pos.y),
+                    ImFloat2(275, 135));
+
+                st.str(std::string());
+                st << "ID : " << objCircle->id;
+                ImDui::Text(st.str().c_str());
+
+
+                /*st.str(std::string());
+                st << "Type : " << E2D_DrawMap[DrawTypes::Circle];
+                ImDui::Text(st.str().c_str());*/
+
+                st.str(std::string());
+                st << "Radius : " << objCircle->radius;
+                ImDui::Text(st.str().c_str());
+
+                st.str(std::string());
+                st << "Position : " << "(" << entity->pos.x << "," << entity->pos.y << ")";
+                ImDui::Text(st.str().c_str());
+
+                st.str(std::string());
+                st << "Velocity : " << "(" << entity->velocity.x << "," << entity->velocity.y << ")";
+                ImDui::Text(st.str().c_str());
+
+                st.str(std::string());
+                st << "Mass : " << entity->mass << " kg";
+                ImDui::Text(st.str().c_str());
+
+                ImDui::EndWindow();
+            }
+        }
+    }
     if (ShowDebugWindow) {
         ImDui::BeginWindow("SciElectra Debug", &ShowDebugWindow, ImFloat2(20, 100), ImFloat2(300, 500));
         std::stringstream sst;
@@ -255,19 +284,38 @@ int SciElectra2D::RegisterWindows() {
         sst << "Frametime : " << eT*1000.0f << " ms";
         ImDui::Text(sst.str().c_str());
 
+        sst.str(std::string()); // Renderables
+		sst << "Renderables : " <<  renderingObjects;
+		ImDui::Text(sst.str().c_str());
+
+
         D2D1_SIZE_F size = pRT->GetSize();
 		sst.str(std::string()); // Screen Size
 		sst << "Screen Size : " << "(" << size.width << "," << size.height << ")";
 		ImDui::Text(sst.str().c_str());
 
+        
+		sst.str(std::string()); // Window World Rect
+		sst << "World Rect: " << "(" << windowWorldRect.left << "," << windowWorldRect.top << "," << windowWorldRect.right << "," << windowWorldRect.bottom << ")";
+		ImDui::Text(sst.str().c_str());
+
+
         sst.str(std::string()); //Mouse Pos 
         sst << "Mouse Pos : " << mousePos.x << "," << mousePos.y;
         ImDui::Text(sst.str().c_str());
+        ImDui::SameLine();
+		sst.str(std::string()); //Mouse WTS Pos 
+		Vector2 worldPos = ScreenToWorld(mousePos);
+		POINT screenPos = WorldToScreen(worldPos);
+		sst << "Mouse WTSPos : " << screenPos.x << "," << screenPos.y;
+		ImDui::Text(sst.str().c_str());
 
 		sst.str(std::string()); //Mouse World Pos 
-        Vector2 worldPos = ScreenToWorld(mousePos);
 		sst << "Mouse World Pos : " << worldPos.x << "," << worldPos.y;
 		ImDui::Text(sst.str().c_str());
+
+		
+
 
         sst.str(std::string()); //Delta Pos Mouse
         sst << "Mouse Delta Pos : " << deltaMousePos.x << "," << deltaMousePos.y;
@@ -284,14 +332,26 @@ int SciElectra2D::RegisterWindows() {
         sst.str(std::string()); //MWheel
         sst << "MWheel: " << deltaMouseWheel;
         ImDui::Text(sst.str().c_str());
-
+        ImDui::SameLine();
         sst.str(std::string()); //Control Press
         sst << "CTRL: " << controlDown;
         ImDui::Text(sst.str().c_str());
 
+		sst.str(std::string()); //Shift Press
+		sst << "SHIFT: " << shiftDown;
+		ImDui::Text(sst.str().c_str());
+
         ImDui::Text("I-Simulation");
-        sst.str(std::string()); //Control Press
+        sst.str(std::string()); //Camera Pos
         sst << "Camera Pos: " << "(" << CameraPos.x <<","<< CameraPos.y <<")";
+        ImDui::Text(sst.str().c_str());
+
+		sst.str(std::string()); //Hover Object
+		sst << "Hover Object : " << hoverObject ;
+		ImDui::Text(sst.str().c_str());
+
+		sst.str(std::string()); //Selected Object
+		sst << "SelectedObject : " << SelectedObject;
         ImDui::Text(sst.str().c_str());
 
 #endif
@@ -312,7 +372,7 @@ int SciElectra2D::RegisterWindows() {
             ShowObjectManager = !ShowObjectManager;
         
         ImDui::EndWindow();
-    }
+   }
     static bool MultiEffect=this->electra.Rules & Rules::MultiEffect ? true : false,
                 NewtonianGravity= this->electra.Rules & Rules::NewtonianGravity ? true : false,
                 Collision= this->electra.Rules & Rules::Collision ? true : false,
@@ -346,8 +406,84 @@ int SciElectra2D::RegisterWindows() {
         ImDui::EndWindow();
     }
     if (ShowObjectManager) {
-        ImDui::BeginWindow("Object Manager", &ShowObjectManager, ImFloat2(400, 50), ImFloat2(400, 400));
-        ImDui::EndWindow();
+		if (SelectedObject == -1 && hoverObject == -1) {
+			ImDui::BeginWindow("Object Manager", &ShowObjectManager, ImFloat2(400, 50), ImFloat2(275, 135));
+            ImDui::Text("Please select object!");
+            ImDui::EndWindow();
+
+		}else{
+			ImDui::BeginWindow("Object Manager", &ShowObjectManager, ImFloat2(400, 50), ImFloat2(275, 600));
+            for (std::list<Entity>::iterator entity = this->electra.entities.begin(); entity != electra.entities.end(); entity++)
+            {
+                if (SelectedObject == -1 && hoverObject == entity->object->id) {
+                    if (entity->type == DrawTypes::Circle) {
+                        std::ostringstream st;
+                        ObjectCircle* objCircle = (ObjectCircle*)entity->object;
+
+                        st.str(std::string());
+                        st << "ID : " << objCircle->id;
+                        ImDui::Text(st.str().c_str());
+
+
+                        /*st.str(std::string());
+                        st << "Type : " << E2D_DrawMap[DrawTypes::Circle];
+                        ImDui::Text(st.str().c_str());*/
+
+                        st.str(std::string());
+                        st << "Radius : " << objCircle->radius;
+                        ImDui::Text(st.str().c_str());
+
+                        st.str(std::string());
+                        st << "Position : " << "(" << entity->pos.x << "," << entity->pos.y << ")";
+                        ImDui::Text(st.str().c_str());
+
+                        st.str(std::string());
+                        st << "Velocity : " << "(" << entity->velocity.x << "," << entity->velocity.y << ")";
+                        ImDui::Text(st.str().c_str());
+
+                        st.str(std::string());
+                        st << "Mass : " << entity->mass << " kg";
+                        ImDui::Text(st.str().c_str());
+                    }
+		    		break;
+
+                }
+                if (entity->object->id == SelectedObject) {
+                    if (entity->type == DrawTypes::Circle) {
+                        std::ostringstream st;
+                        ObjectCircle* objCircle = (ObjectCircle*)entity->object;
+
+                        st.str(std::string());
+                        st << "ID : " << objCircle->id;
+                        ImDui::Text(st.str().c_str());
+
+
+                        /*st.str(std::string());
+                        st << "Type : " << E2D_DrawMap[DrawTypes::Circle];
+                        ImDui::Text(st.str().c_str());*/
+
+                        st.str(std::string());
+                        st << "Radius : " << objCircle->radius;
+                        ImDui::Text(st.str().c_str());
+
+                        st.str(std::string());
+                        st << "Position : " << "(" << entity->pos.x << "," << entity->pos.y << ")";
+                        ImDui::Text(st.str().c_str());
+
+                        st.str(std::string());
+                        st << "Velocity : " << "(" << entity->velocity.x << "," << entity->velocity.y << ")";
+                        ImDui::Text(st.str().c_str());
+
+                        st.str(std::string());
+                        st << "Mass : " << entity->mass << " kg";
+                        ImDui::Text(st.str().c_str());
+                    }
+		    		break;
+                }
+            }
+			ImDui::EndWindow();
+        }
+        
     }
     if (ShowStyleEditor) {
         ImDui::BeginWindow("Style Editor", &ShowStyleEditor, ImFloat2(400, 50), ImFloat2(400, 570));
@@ -362,7 +498,7 @@ BOOL SciElectra2D::Render() {
     hr =CreateDeviceResources();
     if (SUCCEEDED(hr))
     {
-        rtSize = pRT->GetSize();
+        windowSize = pRT->GetSize();
         ImDui::NewFrame();
         RegisterWindows();
         pRT->BeginDraw();
@@ -394,25 +530,29 @@ int SciElectra2D::DrawDebugText() {
         textBuffer = textBuffer + buffer + TEXT("\n");
     }
     size_t length = wcslen(textBuffer.c_str());
-    pRT->DrawTextW(textBuffer.c_str(), length, textFormat, D2D1::RectF(0, 0, rtSize.width, rtSize.height), pDebugText);
+    pRT->DrawTextW(textBuffer.c_str(), length, textFormat, D2D1::RectF(0, 0, windowSize.width, windowSize.height), pDebugText);
     //pRT->DrawRectangle(D2D1::RectF(0, 0, renderTargetSize.width, renderTargetSize.height), pObject);
     return 0;
 
 }
 int SciElectra2D::DrawObjects() {
+    size_t rendering = 0;
     for (Entity entity : electra.entities)
     {
-        if (entity.type == DrawTypes::Circle && entity.isRenderable(rtSize, CameraPos)) {
-            char ODB[200];
+        if (entity.type == DrawTypes::Circle && entity.isRenderable(windowWorldRect)) {
+            rendering++;
             ObjectCircle* obj;
             obj = (ObjectCircle*)entity.object;
             Vector2 repos = entity.pos - CameraPos;
             D2D1_POINT_2F rPos = D2D1::Point2F(
-                (repos.x * zoom + rtSize.width / 2),
-                (rtSize.height/2-repos.y * zoom));
+                (repos.x * zoom + windowSize.width / 2),
+                (windowSize.height/2-repos.y * zoom));
             D2D1_ELLIPSE Circle = D2D1::Ellipse(rPos, obj->radius * zoom, obj->radius*zoom);
             pRT->FillEllipse(&Circle, pObject);
         }
+    }
+    if (rendering != renderingObjects) {
+        renderingObjects = rendering;
     }
     return 0;
 }
@@ -455,7 +595,6 @@ LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
     static HCURSOR currentCursor = GetCursor();
     static POINT deltaPos = mousePos;
-
     ImDui::Event& events = ImDui::GetEvents();
     switch (msg.message)
     {
@@ -471,6 +610,7 @@ BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
             events.MouseWheel = GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0 ? +1 : -1;
             deltaMouseWheel = GET_WHEEL_DELTA_WPARAM(msg.wParam);
             zoom *= deltaMouseWheel > 0 ? pow(2, (1.01 + 0.03 * (deltaMouseWheel / 480.0f))) : 1/ pow(2, (1.1 + 0.1 * (deltaMouseWheel / 480.0f)));
+            WindowRectUpdate();
             break; 
         case WM_MOUSEMOVE:
             events.MousePos.x = (signed short)(msg.lParam);
@@ -486,14 +626,30 @@ BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
             PostQuitMessage(0);
             break;
         case WM_KEYDOWN:
-            if (msg.wParam == VK_CONTROL && !controlDown) {
-                controlDown = true;
+            switch (msg.wParam)
+            {
+            case VK_CONTROL:
+					controlDown = true;
+					break;
+            case VK_SHIFT:
+                    shiftDown = true;
+                    break;
+            default:
+                break;
             }
             break;
         case WM_KEYUP:
-            if (msg.wParam == VK_CONTROL && controlDown) {
-                controlDown = false;
-            }
+			switch (msg.wParam)
+			{
+			case VK_CONTROL:
+				controlDown = false;
+				break;
+			case VK_SHIFT:
+				shiftDown = false;
+				break;
+			default:
+				break;
+			}
             break;
         case WM_SYSKEYDOWN:
             // stifle this keyboard message if imgui wants to capture
@@ -508,6 +664,7 @@ BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
             UINT width = LOWORD(msg.lParam);
             UINT height = HIWORD(msg.lParam);
             hook->ResizeEvent(width, height);
+
             break;
     }
     return 0;
@@ -515,6 +672,86 @@ BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
 void SciElectra2D::ResizeEvent(UINT width, UINT height) {
     if (pRT) {
         pRT->Resize(D2D1::SizeU(width, height));
+        windowSize = D2D1::SizeF(width, height);
+        Vector2 windowWorldSize(width*zoom,height*zoom);
+		WindowRectUpdate();
+
+    }
+}
+static Entity* interactedEntity;
+static size_t lastChangeId = -1;
+void SciElectra2D::ExecuteInteractions()
+{
+
+    if (shiftDown && mouseLeftDown) {
+        Vector2 mouseWPos = ScreenToWorld(mousePos);
+        for (std::list<Entity>::iterator i = this->electra.entities.begin();i != electra.entities.end();i++)
+        {
+            
+            if (i->isInteractedPoint(mouseWPos) && lastChangeId != i->object->id) {
+                /*Interacted object found and selecting*/
+                i->UIVisible = !i->UIVisible;
+                /*
+                interactedEntity = &entity;
+                interactedEntity->UIVisible= !interactedEntity->UIVisible;*/
+                break;
+            }
+        }
+	}
+	
+	/*Object Hovering*/
+	if (!mouseLeftDown) {
+		Vector2 mouseWPos = ScreenToWorld(mousePos);
+		bool isSelected = false;
+		for (std::list<Entity>::iterator i = this->electra.entities.begin(); i != electra.entities.end(); i++)
+		{
+
+			if (i->isInteractedPoint(mouseWPos)) {
+				isSelected = true;
+				/*Interacted object found and selecting*/
+				hoverObject = i->object->id;
+				break;
+			}
+			if (!isSelected) { hoverObject = -1; }
+		}
+	}
+    if (mouseLeftDown && ShowObjectManager) {
+        Vector2 mouseWPos = ScreenToWorld(mousePos);
+        for (std::list<Entity>::iterator i = this->electra.entities.begin(); i != electra.entities.end(); i++)
+        {
+
+            if (i->isInteractedPoint(mouseWPos) && SelectedObject != i->object->id) {
+                /*Interacted object found and selecting*/
+                SelectedObject = i->object->id;
+                break;
+            }
+        }
+	}else {
+		lastChangeId = -1;
+	}
+	/*Camera Movement*/
+
+    if (controlDown && mouseLeftDown) {
+        if (!dbs_initiated) {
+            dbs_initiated = true;
+            dbs_startPointCamera = CameraPos;
+            dbs_startPoint = mousePos;
+        }
+        else {
+            /*if (deltaMousePos.x > 1 || deltaMousePos.y > 1) {
+                animIntegrate = 0;
+            }*/
+            WindowRectUpdate();
+            dbs_endPoint = mousePos;
+            dbs_distance.x = dbs_endPoint.x - dbs_startPoint.x;
+            dbs_distance.y = dbs_endPoint.y - dbs_startPoint.y;
+            //animIntegrate +=  eT;
+            //float tY  = cubicBezier(.35,.9, animIntegrate);
+            CameraPos = (dbs_startPointCamera - Vector(dbs_distance.x / zoom, -dbs_distance.y / zoom));
+        }
+    }
+    else {
+        dbs_initiated = false;
     }
 }
 #pragma endregion

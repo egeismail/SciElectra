@@ -32,6 +32,7 @@ public:
 #pragma region Event
 	BOOL ProcessMsgEvent(MSG msg);
 	void ResizeEvent(UINT width, UINT height);
+	void ExecuteInteractions();
 #pragma endregion
 #pragma region Debug
 	void SetDebugText(const WCHAR* text, unsigned short index);
@@ -57,7 +58,6 @@ public:
 	ID2D1SolidColorBrush* pDebugText = NULL;
 	ID2D1SolidColorBrush* pGrid = NULL;
 	int RegisterWindows();
-
 #pragma endregion
 #pragma region Render
 	BOOL Render();
@@ -65,20 +65,25 @@ public:
 	int DrawObjects();
 #pragma endregion
 #pragma region Universe
+	D2D1_SIZE_F windowSize;
+	D2D1_SIZE_F windowWorldSize;
+	D2D1_RECT_F windowWorldRect;
 	Electra2D electra;
 	RECT windowRectangle;
-	D2D1_SIZE_F rtSize;
 	steady_clock::time_point simulationStartTime, sTime, eTime;
 	steady_clock::duration elapsedTime, frameTime;
 	double fps,eT;
 	Vector2 CameraPos;
 	float zoom = 1;
+	size_t renderingObjects;
 	POINT WorldToScreen(Vector2 Pos);
 	Vector2 ScreenToWorld(POINT Pos);
+	int WindowRectUpdate();
 	bool showGrids;
 	int ShowGrids();
 #pragma endregion
 	bool controlDown;
+	bool shiftDown;
 	bool mouseLeftDown;
 	int  deltaMouseWheel;
 	POINT mousePos;
@@ -89,8 +94,17 @@ public:
 	POINT dbs_startPoint;
 	POINT dbs_endPoint;
 	POINT dbs_distance;
+	//Anims
 	const float MovementAnimDuration = 1.0f;
 	const float ZoomAnimDuration = 1.0f;
+	//Windows
+	bool ShowDebugWindow = true,
+		ShowSimulationSettings = false,
+		ShowGraphicalSettings = false,
+		ShowObjectManager = false,
+		ShowStyleEditor = false;
+	int SelectedObject = -1;
+	int hoverObject = -1;
 	
 
 	

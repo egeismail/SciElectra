@@ -3,6 +3,7 @@
 #include <list>
 #include "elecmath.hpp"
 #define ENTITY_LIMIT 1024
+
 enum DrawTypes
 {
 	Circle=0x1
@@ -26,6 +27,7 @@ struct Entity {
 	Vector2 pos;
 	Vector2 velocity;
 	float mass = 1;
+	bool UIVisible = false;
 	Object *object;
 	Entity(Vector2 pos_,Vector2 velocity_,float mass_,Object *obj, DrawType type_) {
 		pos = pos_;
@@ -34,12 +36,19 @@ struct Entity {
 		object = obj;
 		type = type_;
 	}
-	bool isRenderable(D2D1_SIZE_F size,Vector2 camera) {
+	bool isRenderable(D2D1_RECT_F worldRect){
 		if (type == DrawTypes::Circle) {
 			float radius = ((ObjectCircle*)object)->radius;
-			return (radius+size.width/2)>abs(pos.x-camera.x)&&(radius+size.height/2)>abs(pos.y-camera.y);
+			return worldRect.left-radius < pos.x && worldRect.right + radius > pos.x && worldRect.top+radius> pos.y && worldRect.bottom-radius< pos.y;
 		}
 		return true;
+	}
+	bool isInteractedPoint(Vector2 point) {
+		if (type == DrawTypes::Circle) {
+			float radius = ((ObjectCircle*)object)->radius;
+			return (pos - point).getLength() <= radius;
+		}
+		return false;
 	}
 
 };
