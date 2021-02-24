@@ -403,7 +403,6 @@ int SciElectra2D::DrawObjects() {
     for (Entity entity : electra.entities)
     {
         if (entity.type == DrawTypes::Circle && entity.isRenderable(rtSize, CameraPos)) {
-            char ODB[200];
             ObjectCircle* obj;
             obj = (ObjectCircle*)entity.object;
             Vector2 repos = entity.pos - CameraPos;
