@@ -111,10 +111,13 @@ HRESULT SciElectra2D::CreateDeviceResources()
             &pDebugText
         );
 		if (SUCCEEDED(hr)) hr = pRT->CreateSolidColorBrush(
-			D2D1::ColorF(0xaaaaaa),
+			D2D1::ColorF(0xffffff,1.0f),
 			&pGrid
 		);
-
+		if (SUCCEEDED(hr)) hr = pRT->CreateSolidColorBrush(
+			D2D1::ColorF(0x777777,0.5f),
+			&pGridBack
+		);
 
         if (SUCCEEDED(hr)) hr = writeFactory->CreateTextFormat(
             fDebugText,
@@ -153,8 +156,16 @@ POINT SciElectra2D::WorldToScreen(Vector2 Pos)
     Vector2 cPos = (Pos - CameraPos)*zoom;
     POINT ScreenPos;
 	ScreenPos.x = cPos.x + windowSize.width / 2;
-	ScreenPos.y = -(cPos.y - windowSize.height/ 2);
+	ScreenPos.y = -cPos.y + windowSize.height/ 2;
     return ScreenPos;
+}
+long SciElectra2D::WorldToScreenX(float x)
+{
+	return ((x - CameraPos.x) * zoom) + windowSize.width / 2;
+}
+long SciElectra2D::WorldToScreenY(float y)
+{
+    return ((CameraPos.y-y)*zoom + windowSize.height/2);
 }
 Vector2 SciElectra2D::ScreenToWorld(POINT Pos)
 {
@@ -163,6 +174,14 @@ Vector2 SciElectra2D::ScreenToWorld(POINT Pos)
     sPos.y += windowSize.height / 2;
     Vector2 rPos = (sPos / zoom) + CameraPos;
     return rPos;
+}
+float SciElectra2D::ScreenToWorldX(long x)
+{
+    return (x-windowSize.width/2)/zoom + CameraPos.x;
+}
+float SciElectra2D::ScreenToWorldY(long y)
+{
+	return (windowSize.height/2-y)/zoom + CameraPos.y;
 }
 int SciElectra2D::WindowRectUpdate()
 {
@@ -176,11 +195,102 @@ int SciElectra2D::WindowRectUpdate()
 	windowWorldRect = D2D1_RECT_F(D2D1::RectF(ptS_.x, ptS_.y, ptE_.x, ptE_.y));
     return 0;
 }
+float SeqA051109(unsigned int n) {
+    return ((n % 3) * (n % 3) + 1) * pow(10, int(n / 3));
+}
 int SciElectra2D::ShowGrids() {
     if (!showGrids)
         return 0;
-    D2D1_SIZE_F size = pRT->GetSize();
-    /*X lines*/
+    std::stringstream debugStream;
+	D2D1_RECT_F wwR = windowWorldRect;
+    /*
+        Y lines
+    */
+    float deltaX = wwR.right - wwR.left,
+        deltaY = wwR.top - wwR.bottom;
+    float dipIn = abs(1/zoom),
+          dipInFloor = dipIn-floor(dipIn),
+          dipM= dipInFloor > 0.7 ? 0.3 : (dipInFloor > 0.4 ? 0.6 : (dipInFloor > 0 ? 1 : 1));
+    
+    float step = 100.0f/(zoom*dipM),
+		  subStep = step / 5.0f;
+    //debugStream << "LogStep:" << step << " SubStep" << subStep << "\n";
+	//OutputDebugStringA(debugStream.str().c_str());
+
+    float gStartX = step * (floorf(wwR.left / step)),
+          gEndX = step * floorf(wwR.right / step),
+          gDeltaX = gEndX-gStartX,
+          gStepsX = gDeltaX/step+1,
+	      gStartY = step * (floorf(wwR.bottom / step)),
+	      gEndY = step * (floorf(wwR.top / step)),
+		  gDeltaY = gEndY - gStartY,
+		  gStepsY = gDeltaY / step + 1;
+	//debugStream << "delta,gStart,gEnd,gDelta,gSteps : " << delta << "," << gStart << "," << gEnd << "," << gDelta << "," << gSteps << "\n";
+
+    float axis, subAxis,
+          axis_s,subAxis_s;
+
+    
+    //char axisString[24];
+    for (size_t i=0;i<gStepsX;i++)
+    {
+		axis = gStartX + step * i;
+        axis_s = WorldToScreenX(axis);
+        //debugStream << "Axis : " << axis << "\n";
+        for (size_t j = 1; j < subStep; j++)
+        {
+			subAxis = axis + j * subStep;
+			subAxis_s = WorldToScreenX(subAxis);
+            if (subAxis_s >= windowSize.width) break;
+			pRT->DrawLine(
+				D2D1::Point2F(subAxis_s, 0),
+				D2D1::Point2F(subAxis_s, windowSize.width),
+				pGridBack
+			);
+        }
+		pRT->DrawLine(
+			D2D1::Point2F(axis_s, 0),
+			D2D1::Point2F(axis_s, windowSize.width),
+			pGrid
+		);
+        //sprintf(axisString, "%d", ((int)axis));
+		//pRT->DrawTextW(axisString, strlen(axisString), textFormat, D2D1::RectF(0, 0, 0,0), pGrid);
+
+    }
+
+    /*
+        X Lines
+    */
+
+    
+
+	//char axisString[24];
+	for (size_t i = 0; i < gStepsY+1; i++)
+	{
+		axis = gStartY + step * i;
+		axis_s = WorldToScreenY(axis);
+		//debugStream << "Axis : " << axis << "\n";
+		for (size_t j = 1; j < subStep; j++)
+		{
+			subAxis = axis - j * subStep;
+			subAxis_s = WorldToScreenY(subAxis);
+			pRT->DrawLine(
+				D2D1::Point2F(windowSize.width,subAxis_s),
+				D2D1::Point2F(0,subAxis_s),
+				pGridBack
+			);
+		}
+		pRT->DrawLine(
+			D2D1::Point2F(windowSize.width, axis_s),
+			D2D1::Point2F(0, axis_s),
+			pGrid
+		);
+		//sprintf(axisString, "%d", ((int)axis));
+		//pRT->DrawTextW(axisString, strlen(axisString), textFormat, D2D1::RectF(0, 0, 0,0), pGrid);
+
+	}
+	//OutputDebugStringA(debugStream.str().c_str());
+
     return 0;
 }
 BOOL SciElectra2D::Start()
@@ -274,7 +384,7 @@ int SciElectra2D::RegisterWindows() {
         }
     }
     if (ShowDebugWindow) {
-        ImDui::BeginWindow("SciElectra Debug", &ShowDebugWindow, ImFloat2(20, 100), ImFloat2(300, 500));
+        ImDui::BeginWindow("SciElectra Debug", &ShowDebugWindow, ImFloat2(20, 60), ImFloat2(300, 655));
         std::stringstream sst;
         ImDui::Text("O-Simulation");
         sst << "FPS : " << fps; 
@@ -303,18 +413,26 @@ int SciElectra2D::RegisterWindows() {
         sst.str(std::string()); //Mouse Pos 
         sst << "Mouse Pos : " << mousePos.x << "," << mousePos.y;
         ImDui::Text(sst.str().c_str());
-        ImDui::SameLine();
-		sst.str(std::string()); //Mouse WTS Pos 
+
 		Vector2 worldPos = ScreenToWorld(mousePos);
+        float wPx =ScreenToWorldX(mousePos.x), wPy = ScreenToWorldY(mousePos.y);
 		POINT screenPos = WorldToScreen(worldPos);
-		sst << "Mouse WTSPos : " << screenPos.x << "," << screenPos.y;
-		ImDui::Text(sst.str().c_str());
+        float sPx=WorldToScreenX(wPx), sPy= WorldToScreenY(wPy);
 
+		sst.str(std::string()); //Mouse World Pos  Not Struct 
+		sst << "Mouse STW_NS : " << wPx << "," << wPy;
+		ImDui::Text(sst.str().c_str());
 		sst.str(std::string()); //Mouse World Pos 
-		sst << "Mouse World Pos : " << worldPos.x << "," << worldPos.y;
+		sst << "Mouse STW    : " << worldPos.x << "," << worldPos.y;
 		ImDui::Text(sst.str().c_str());
 
-		
+		sst.str(std::string()); //Mouse WTS Pos 
+		sst << "Mouse WTS    : " << screenPos.x << "," << screenPos.y;
+		ImDui::Text(sst.str().c_str());
+		sst.str(std::string()); //Mouse WTS Pos Not Struct 
+		sst << "Mouse WTS NS : " << sPx << "," << sPy;
+		ImDui::Text(sst.str().c_str());
+
 
 
         sst.str(std::string()); //Delta Pos Mouse
@@ -353,6 +471,14 @@ int SciElectra2D::RegisterWindows() {
 		sst.str(std::string()); //Selected Object
 		sst << "SelectedObject : " << SelectedObject;
         ImDui::Text(sst.str().c_str());
+
+		sst.str(std::string()); //ZOOM TL
+		sst << "DT : " << windowWorldRect.right - windowWorldRect.left;
+		ImDui::Text(sst.str().c_str());
+        ImDui::SameLine();
+		sst.str(std::string()); //ZOOM TL
+		sst << "ZR : " << 1/zoom;
+		ImDui::Text(sst.str().c_str());
 
 #endif
         ImDui::PushItemWidth(50);
@@ -402,7 +528,8 @@ int SciElectra2D::RegisterWindows() {
         ImDui::EndWindow();
     }
     if (ShowGraphicalSettings) {
-        ImDui::BeginWindow("Graphical Settings", &ShowGraphicalSettings, ImFloat2(400, 50), ImFloat2(400, 400));
+        ImDui::BeginWindow("Graphical Settings", &ShowGraphicalSettings, ImFloat2(400, 50), ImFloat2(200, 300));
+        ImDui::CheckBox("Show Grids", &showGrids);
         ImDui::EndWindow();
     }
     if (ShowObjectManager) {
@@ -503,9 +630,9 @@ BOOL SciElectra2D::Render() {
         RegisterWindows();
         pRT->BeginDraw();
 		/*Grids*/
-		//ShowGrids();
         pRT->SetTransform(D2D1::Matrix3x2F::Identity());
         pRT->Clear(D2D1::ColorF(0x0));
+		ShowGrids();
         this->DrawObjects();
         this->DrawDebugText();
         ImDui::Render();
@@ -609,7 +736,7 @@ BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
         case WM_MOUSEWHEEL:
             events.MouseWheel = GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0 ? +1 : -1;
             deltaMouseWheel = GET_WHEEL_DELTA_WPARAM(msg.wParam);
-            zoom *= deltaMouseWheel > 0 ? pow(2, (1.01 + 0.03 * (deltaMouseWheel / 480.0f))) : 1/ pow(2, (1.1 + 0.1 * (deltaMouseWheel / 480.0f)));
+            zoom *= deltaMouseWheel > 0 ? 1.1 : 0.9;
             WindowRectUpdate();
             break; 
         case WM_MOUSEMOVE:

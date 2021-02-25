@@ -57,6 +57,7 @@ public:
 	ID2D1SolidColorBrush* pBlack = NULL;
 	ID2D1SolidColorBrush* pDebugText = NULL;
 	ID2D1SolidColorBrush* pGrid = NULL;
+	ID2D1SolidColorBrush* pGridBack = NULL;
 	int RegisterWindows();
 #pragma endregion
 #pragma region Render
@@ -75,11 +76,16 @@ public:
 	double fps,eT;
 	Vector2 CameraPos;
 	float zoom = 1;
+	float zoomLinearer = 0;
 	size_t renderingObjects;
 	POINT WorldToScreen(Vector2 Pos);
+	long WorldToScreenX(float x);
+	long WorldToScreenY(float y);
 	Vector2 ScreenToWorld(POINT Pos);
+	float ScreenToWorldX(long x);
+	float ScreenToWorldY(long y);
 	int WindowRectUpdate();
-	bool showGrids;
+	bool showGrids = true;
 	int ShowGrids();
 #pragma endregion
 	bool controlDown;
