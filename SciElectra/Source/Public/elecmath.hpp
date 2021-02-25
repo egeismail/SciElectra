@@ -15,6 +15,9 @@ struct Vector2
     float getLength() {
         return sqrt((float)(x * x + y * y));
     }
+    float getDistance(Vector2 from) {
+        return sqrt(pow(x - from.x, 2) + pow(y - from.y, 2));
+    }
     Vector2& operator+=(Vector2 const& other) {
         x += other.x;
         y += other.y;

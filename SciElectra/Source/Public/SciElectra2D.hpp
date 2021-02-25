@@ -79,14 +79,18 @@ public:
 	float zoomLinearer = 0;
 	size_t renderingObjects;
 	POINT WorldToScreen(Vector2 Pos);
+	POINT WorldToScreen_bc(Vector2 Pos, Vector2 Camera);
 	long WorldToScreenX(float x);
 	long WorldToScreenY(float y);
 	Vector2 ScreenToWorld(POINT Pos);
+	Vector2 ScreenToWorld_bc(POINT Pos, Vector2 Camera);
 	float ScreenToWorldX(long x);
 	float ScreenToWorldY(long y);
 	int WindowRectUpdate();
 	bool showGrids = true;
+	bool showVectors = true;
 	int ShowGrids();
+	int ShowVectors();
 #pragma endregion
 	bool controlDown;
 	bool shiftDown;
@@ -100,9 +104,10 @@ public:
 	POINT dbs_startPoint;
 	POINT dbs_endPoint;
 	POINT dbs_distance;
+	Vector2 dbs_distanceVec;
 	//Anims
-	const float MovementAnimDuration = 1.0f;
-	const float ZoomAnimDuration = 1.0f;
+	const float MovementLerp = 2.0f;
+	const float ZoomLerp = 0.1f;
 	//Windows
 	bool ShowDebugWindow = true,
 		ShowSimulationSettings = false,
@@ -111,7 +116,8 @@ public:
 		ShowStyleEditor = false;
 	int SelectedObject = -1;
 	int hoverObject = -1;
-	
+	double simElapsedTime;
+	int intap = 0;
 
 	
 	

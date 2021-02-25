@@ -27,8 +27,8 @@ struct Entity {
 	Vector2 pos;
 	Vector2 velocity;
 	float mass = 1;
-	bool UIVisible = false;
 	Object *object;
+	bool UIVisible = false;
 	Entity(Vector2 pos_,Vector2 velocity_,float mass_,Object *obj, DrawType type_) {
 		pos = pos_;
 		velocity = velocity_;

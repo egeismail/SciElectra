@@ -49,11 +49,11 @@ HRESULT SciElectra2D::InitializeWindow(Window* root)
     lr = CreateDeviceIndependentResources() && lr;
     PostMessage(hWnd, SE2D_INITIALIZE, (WPARAM)this, NULL);
     /*Debug Text*/
-#if SE2D_DEBUG
-    this->AddDebugText(TEXT("SciElectra Alpha"));
-    this->AddDebugText(TEXT("FPS          : 0"));
-    this->AddDebugText(TEXT("Elapsed Time : 0"));
-#endif
+//#if SE2D_DEBUG
+//    this->AddDebugText(TEXT("SciElectra Alpha"));
+//    this->AddDebugText(TEXT("FPS          : 0"));
+//    this->AddDebugText(TEXT("Elapsed Time : 0"));
+//#endif
     /*Configure ImDui Colors*/
     return lr ? S_OK : S_FALSE;
 }
@@ -159,6 +159,14 @@ POINT SciElectra2D::WorldToScreen(Vector2 Pos)
 	ScreenPos.y = -cPos.y + windowSize.height/ 2;
     return ScreenPos;
 }
+POINT SciElectra2D::WorldToScreen_bc(Vector2 Pos,Vector2 Camera)
+{
+	Vector2 cPos = (Pos - Camera) * zoom;
+	POINT ScreenPos;
+	ScreenPos.x = cPos.x + windowSize.width / 2;
+	ScreenPos.y = -cPos.y + windowSize.height / 2;
+	return ScreenPos;
+}
 long SciElectra2D::WorldToScreenX(float x)
 {
 	return ((x - CameraPos.x) * zoom) + windowSize.width / 2;
@@ -174,6 +182,14 @@ Vector2 SciElectra2D::ScreenToWorld(POINT Pos)
     sPos.y += windowSize.height / 2;
     Vector2 rPos = (sPos / zoom) + CameraPos;
     return rPos;
+}
+Vector2 SciElectra2D::ScreenToWorld_bc(POINT Pos,Vector2 Camera)
+{
+	Vector2 sPos(Pos.x, -Pos.y);
+	sPos.x -= windowSize.width / 2;
+	sPos.y += windowSize.height / 2;
+	Vector2 rPos = (sPos / zoom) + Camera;
+	return rPos;
 }
 float SciElectra2D::ScreenToWorldX(long x)
 {
@@ -208,10 +224,10 @@ int SciElectra2D::ShowGrids() {
     */
     float deltaX = wwR.right - wwR.left,
         deltaY = wwR.top - wwR.bottom;
-    float dipIn = abs(1/zoom),
-          dipInFloor = dipIn-floor(dipIn),
-          dipM= dipInFloor > 0.7 ? 0.3 : (dipInFloor > 0.4 ? 0.6 : (dipInFloor > 0 ? 1 : 1));
-    
+    float dipIn = abs(1 / zoom),
+        dipInFloor = dipIn - floor(dipIn),
+        dipM = 1;
+          //dipM= dipInFloor >= 0.9 ? 1 : (dipInFloor >= 0.5 ? 0.8 : (dipInFloor > 0 ? 1 : 0.7));
     float step = 100.0f/(zoom*dipM),
 		  subStep = step / 5.0f;
     //debugStream << "LogStep:" << step << " SubStep" << subStep << "\n";
@@ -229,6 +245,7 @@ int SciElectra2D::ShowGrids() {
 
     float axis, subAxis,
           axis_s,subAxis_s;
+	wchar_t ssT[64];
 
     
     //char axisString[24];
@@ -236,6 +253,19 @@ int SciElectra2D::ShowGrids() {
     {
 		axis = gStartX + step * i;
         axis_s = WorldToScreenX(axis);
+        float topset = WorldToScreenY(0) < 0 ? 0 : (WorldToScreenY(0) > windowSize.height-20 ? windowSize.height - 20 : WorldToScreenY(0));
+		wmemset(ssT, L'\x00', 64);
+        swprintf_s(ssT,L"%.2f",axis);
+        pRT->DrawTextW(
+            ssT,
+            std::wcslen(ssT),
+            textFormat,
+            D2D1_RECT_F(D2D1::RectF(
+                axis_s,
+                topset,
+                axis_s+(zoom*step/2),
+                topset +20)),
+            pGrid);
         //debugStream << "Axis : " << axis << "\n";
         for (size_t j = 1; j < subStep; j++)
         {
@@ -262,13 +292,25 @@ int SciElectra2D::ShowGrids() {
         X Lines
     */
 
-    
-
+    float topset = WorldToScreenX(0) < 0 ? 0 : (WorldToScreenX(0) > windowSize.width-(zoom * step / 2) ? windowSize.width - (zoom * step / 2) : WorldToScreenX(0));
 	//char axisString[24];
 	for (size_t i = 0; i < gStepsY+1; i++)
 	{
 		axis = gStartY + step * i;
 		axis_s = WorldToScreenY(axis);
+        wmemset(ssT, L'\x00', 64);
+		swprintf_s(ssT, L"%.2f", axis);
+		pRT->DrawTextW(
+			ssT,
+			std::wcslen(ssT),
+			textFormat,
+			D2D1_RECT_F(D2D1::RectF(
+                topset,
+                axis_s,
+                topset + (zoom * step / 2),
+                axis_s + 20 
+            )),
+			pGrid);
 		//debugStream << "Axis : " << axis << "\n";
 		for (size_t j = 1; j < subStep; j++)
 		{
@@ -291,6 +333,18 @@ int SciElectra2D::ShowGrids() {
 	}
 	//OutputDebugStringA(debugStream.str().c_str());
 
+    return 0;
+}
+int SciElectra2D::ShowVectors()
+{
+	if (!ShowVectors)
+		return 0;
+ /*   for (std::list<Entity>::iterator entity = this->electra.entities.begin(); entity != electra.entities.end(); entity++)
+    {
+        pRT->DrawLine(
+            D2D1::Point2F()
+        );
+    }*/
     return 0;
 }
 BOOL SciElectra2D::Start()
@@ -316,25 +370,25 @@ BOOL SciElectra2D::Start()
         eTime = steady_clock::now();
         frameTime = eTime - sTime;
         elapsedTime = eTime-simulationStartTime;
-#if SE2D_DEBUG
-        WCHAR FPSText[DEBUG_TEXT_LENGTH], ElapsedTime[DEBUG_TEXT_LENGTH], E1[DEBUG_TEXT_LENGTH], E2[DEBUG_TEXT_LENGTH];
-        eT = (duration_cast<microseconds>(frameTime).count() / 10e+6f);
-        fps = 1.f / (duration_cast<microseconds>(frameTime).count() / 10e+6f);
-        double simElapsedTime = (duration_cast<microseconds>(elapsedTime).count() / 10e+5f);
-        if(duration_cast<milliseconds>(eTime - lastRender).count() > 16){
-            swprintf_s(FPSText, DEBUG_TEXT_LENGTH,    L"FPS          : %f", fps);
-            swprintf_s(ElapsedTime, DEBUG_TEXT_LENGTH, L"Elapsed Time : %f", simElapsedTime);
-            //std::list<Entity>::iterator itr = this->electra.entities.begin();
-            //swprintf_s(E1, DEBUG_TEXT_LENGTH, L"Entity1 : x:%f,y:%f,m:%f,r:%d", itr->pos.x, itr->pos.y, itr->mass,itr->isRenderable(rtSize));
-            //itr++;
-            //swprintf_s(E2, DEBUG_TEXT_LENGTH, L"Entity2 : x:%f,y:%f,m:%f,r:%d", itr->pos.x, itr->pos.y, itr->mass,itr->isRenderable(rtSize));
-            this->SetDebugText(FPSText, 1);
-            this->SetDebugText(ElapsedTime, 2);
-            //this->SetDebugText(E1, 3);
-            //this->SetDebugText(E2, 4);
-            lastRender = eTime;
-        }
-#endif
+//#if SE2D_DEBUG
+        //WCHAR FPSText[DEBUG_TEXT_LENGTH], ElapsedTime[DEBUG_TEXT_LENGTH], E1[DEBUG_TEXT_LENGTH], E2[DEBUG_TEXT_LENGTH];
+        eT = (duration_cast<microseconds>(frameTime).count() / 10e+5f);
+        fps = 1.f / (duration_cast<microseconds>(frameTime).count() / 10e+5f);
+        simElapsedTime = (duration_cast<microseconds>(elapsedTime).count() / 10e+5f);
+        //if(duration_cast<milliseconds>(eTime - lastRender).count() > 16){
+        //    swprintf_s(FPSText, DEBUG_TEXT_LENGTH,    L"FPS          : %f", fps);
+        //    swprintf_s(ElapsedTime, DEBUG_TEXT_LENGTH, L"Elapsed Time : %f", simElapsedTime);
+        //    //std::list<Entity>::iterator itr = this->electra.entities.begin();
+        //    //swprintf_s(E1, DEBUG_TEXT_LENGTH, L"Entity1 : x:%f,y:%f,m:%f,r:%d", itr->pos.x, itr->pos.y, itr->mass,itr->isRenderable(rtSize));
+        //    //itr++;
+        //    //swprintf_s(E2, DEBUG_TEXT_LENGTH, L"Entity2 : x:%f,y:%f,m:%f,r:%d", itr->pos.x, itr->pos.y, itr->mass,itr->isRenderable(rtSize));
+        //    this->SetDebugText(FPSText, 1);
+        //    this->SetDebugText(ElapsedTime, 2);
+        //    //this->SetDebugText(E1, 3);
+        //    //this->SetDebugText(E2, 4);
+        //    lastRender = eTime;
+        //}
+//#endif
     }
     return 0;
 }
@@ -384,15 +438,19 @@ int SciElectra2D::RegisterWindows() {
         }
     }
     if (ShowDebugWindow) {
-        ImDui::BeginWindow("SciElectra Debug", &ShowDebugWindow, ImFloat2(20, 60), ImFloat2(300, 655));
+        ImDui::BeginWindow("SciElectra Debug", &ShowDebugWindow, ImFloat2(0.1, 0.1), ImFloat2(300, windowSize.height));
         std::stringstream sst;
         ImDui::Text("O-Simulation");
         sst << "FPS : " << fps; 
         ImDui::Text(sst.str().c_str());
 #ifdef SE2D_DEBUG
         sst.str(std::string()); // Frametime
-        sst << "Frametime : " << eT*1000.0f << " ms";
+        sst << "Frametime : " << eT*1000.0f << " ms; :" << duration_cast<microseconds>(frameTime).count() << "us";
         ImDui::Text(sst.str().c_str());
+
+		sst.str(std::string()); // Elapsed Time
+		sst << "Elapsed Time : " << simElapsedTime << " s";
+		ImDui::Text(sst.str().c_str());
 
         sst.str(std::string()); // Renderables
 		sst << "Renderables : " <<  renderingObjects;
@@ -478,6 +536,9 @@ int SciElectra2D::RegisterWindows() {
         ImDui::SameLine();
 		sst.str(std::string()); //ZOOM TL
 		sst << "ZR : " << 1/zoom;
+		ImDui::Text(sst.str().c_str());
+		sst.str(std::string()); //ZOOM TL
+		sst << "INTP : " << intap;
 		ImDui::Text(sst.str().c_str());
 
 #endif
@@ -634,7 +695,7 @@ BOOL SciElectra2D::Render() {
         pRT->Clear(D2D1::ColorF(0x0));
 		ShowGrids();
         this->DrawObjects();
-        this->DrawDebugText();
+        //this->DrawDebugText();
         ImDui::Render();
 ;       hr = pRT->EndDraw();
     }   
@@ -660,7 +721,6 @@ int SciElectra2D::DrawDebugText() {
     pRT->DrawTextW(textBuffer.c_str(), length, textFormat, D2D1::RectF(0, 0, windowSize.width, windowSize.height), pDebugText);
     //pRT->DrawRectangle(D2D1::RectF(0, 0, renderTargetSize.width, renderTargetSize.height), pObject);
     return 0;
-
 }
 int SciElectra2D::DrawObjects() {
     size_t rendering = 0;
@@ -683,6 +743,19 @@ int SciElectra2D::DrawObjects() {
     }
     return 0;
 }
+
+#pragma endregion
+#pragma region Events
+static void dPrint(const char* title, double number) {
+	std::stringstream pps;
+	pps << title << " : " << number << "\n";
+	OutputDebugStringA(pps.str().c_str());
+}
+static void dPrint(const char* title, Vector2 vect) {
+	std::stringstream pps;
+	pps << title << " : " << "(" << vect.x << "," << vect.y << ")\n";
+	OutputDebugStringA(pps.str().c_str());
+}
 static SciElectra2D* hook = NULL;
 LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -703,7 +776,7 @@ LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
             UINT height = HIWORD(lParam);
             hook->ResizeEvent(width, height);
             break;
-                
+
         }*/
     }
     else {
@@ -716,9 +789,6 @@ LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 
     return DefWindowProc(hWnd, msg, wParam, lParam);
 }
-
-#pragma endregion
-#pragma region Events
 BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
     static HCURSOR currentCursor = GetCursor();
     static POINT deltaPos = mousePos;
@@ -856,13 +926,14 @@ void SciElectra2D::ExecuteInteractions()
 	}else {
 		lastChangeId = -1;
 	}
+    //static float variableLerp;
 	/*Camera Movement*/
-
     if (controlDown && mouseLeftDown) {
         if (!dbs_initiated) {
             dbs_initiated = true;
             dbs_startPointCamera = CameraPos;
             dbs_startPoint = mousePos;
+            intap = 1;
         }
         else {
             /*if (deltaMousePos.x > 1 || deltaMousePos.y > 1) {
@@ -870,11 +941,16 @@ void SciElectra2D::ExecuteInteractions()
             }*/
             WindowRectUpdate();
             dbs_endPoint = mousePos;
-            dbs_distance.x = dbs_endPoint.x - dbs_startPoint.x;
-            dbs_distance.y = dbs_endPoint.y - dbs_startPoint.y;
-            //animIntegrate +=  eT;
+            //dbs_distance.x = dbs_endPoint.x - dbs_startPoint.x;
+            //dbs_distance.y = dbs_endPoint.y - dbs_startPoint.y;
+            dbs_distanceVec = ScreenToWorld_bc(dbs_endPoint,dbs_startPointCamera)*-1;
+            //variableLerp = (dbs_distanceVec - ScreenToWorld(dbs_startPoint)).getLength() / ScreenToWorld_bc(dbs_startPoint, dbs_startPointCamera).getDistance(dbs_distanceVec);
+            //variableLerp = variableLerp * variableLerp;
+			//dPrint("Normalized", (dbs_distanceVec - ScreenToWorld(dbs_startPoint)).getLength() / ScreenToWorld_bc(dbs_startPoint, dbs_startPointCamera).getDistance(dbs_distanceVec));
+			//dPrint("Curved", variableLerp);
             //float tY  = cubicBezier(.35,.9, animIntegrate);
-            CameraPos = (dbs_startPointCamera - Vector(dbs_distance.x / zoom, -dbs_distance.y / zoom));
+            intap++;
+            CameraPos += (dbs_distanceVec-ScreenToWorld(dbs_startPoint))*eT*MovementLerp;
         }
     }
     else {
