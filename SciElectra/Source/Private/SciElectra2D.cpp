@@ -118,7 +118,10 @@ HRESULT SciElectra2D::CreateDeviceResources()
 			D2D1::ColorF(0x777777,0.5f),
 			&pGridBack
 		);
-
+		if (SUCCEEDED(hr)) hr = pRT->CreateSolidColorBrush(
+			D2D1::ColorF(0xffffff,1.0f),
+            &pFreeBrush
+		);
         if (SUCCEEDED(hr)) hr = writeFactory->CreateTextFormat(
             fDebugText,
             NULL,
@@ -159,6 +162,12 @@ POINT SciElectra2D::WorldToScreen(Vector2 Pos)
 	ScreenPos.y = -cPos.y + windowSize.height/ 2;
     return ScreenPos;
 }
+D2D1_POINT_2F SciElectra2D::WorldToScreen_D2D1(Vector2 Pos)
+{
+	Vector2 cPos = (Pos - CameraPos) * zoom;
+	return D2D1::Point2F(cPos.x + windowSize.width / 2,
+                         -cPos.y + windowSize.height / 2);
+}
 POINT SciElectra2D::WorldToScreen_bc(Vector2 Pos,Vector2 Camera)
 {
 	Vector2 cPos = (Pos - Camera) * zoom;
@@ -166,6 +175,12 @@ POINT SciElectra2D::WorldToScreen_bc(Vector2 Pos,Vector2 Camera)
 	ScreenPos.x = cPos.x + windowSize.width / 2;
 	ScreenPos.y = -cPos.y + windowSize.height / 2;
 	return ScreenPos;
+}
+D2D1_POINT_2F SciElectra2D::WorldToScreen_bc_D2D1(Vector2 Pos, Vector2 Camera)
+{
+	Vector2 cPos = (Pos - Camera) * zoom;
+	return D2D1::Point2F(cPos.x + windowSize.width / 2,
+		                -cPos.y + windowSize.height / 2);
 }
 long SciElectra2D::WorldToScreenX(float x)
 {
@@ -337,14 +352,22 @@ int SciElectra2D::ShowGrids() {
 }
 int SciElectra2D::ShowVectors()
 {
-	if (!ShowVectors)
+	if (!showVectors)
 		return 0;
- /*   for (std::list<Entity>::iterator entity = this->electra.entities.begin(); entity != electra.entities.end(); entity++)
+    for (std::list<Entity>::iterator entity = this->electra.entities.begin(); entity != electra.entities.end(); entity++)
     {
+        ObjectCircle* objCircle = (ObjectCircle*)entity->object;
+        Angle ang = entity->velocity.getAngle();
+        Vector2 entryPoint = entity->pos+ Vector2(objCircle->radius*cosf(ang.pitch),
+                                                  objCircle->radius*sinf(ang.pitch));
+		Vector2 endPoint = entryPoint +(entity->velocity)*5;
+        pFreeBrush->SetColor(D2D1::ColorF(0xffffff));
         pRT->DrawLine(
-            D2D1::Point2F()
+            WorldToScreen_D2D1(entryPoint),
+            WorldToScreen_D2D1(endPoint),
+            pFreeBrush
         );
-    }*/
+    }
     return 0;
 }
 BOOL SciElectra2D::Start()
@@ -450,6 +473,10 @@ int SciElectra2D::RegisterWindows() {
 
 		sst.str(std::string()); // Elapsed Time
 		sst << "Elapsed Time : " << simElapsedTime << " s";
+		ImDui::Text(sst.str().c_str());
+
+		sst.str(std::string()); // Elapsed Time
+		sst << "Elapsed Time Sim : " << (electra.elapsedTimeUS)/10e+5 << " s";
 		ImDui::Text(sst.str().c_str());
 
         sst.str(std::string()); // Renderables
@@ -590,7 +617,8 @@ int SciElectra2D::RegisterWindows() {
     }
     if (ShowGraphicalSettings) {
         ImDui::BeginWindow("Graphical Settings", &ShowGraphicalSettings, ImFloat2(400, 50), ImFloat2(200, 300));
-        ImDui::CheckBox("Show Grids", &showGrids);
+		ImDui::CheckBox("Show Grids", &showGrids);
+		ImDui::CheckBox("Show Vectors", &showVectors);
         ImDui::EndWindow();
     }
     if (ShowObjectManager) {
@@ -694,7 +722,8 @@ BOOL SciElectra2D::Render() {
         pRT->SetTransform(D2D1::Matrix3x2F::Identity());
         pRT->Clear(D2D1::ColorF(0x0));
 		ShowGrids();
-        this->DrawObjects();
+        DrawObjects();
+        ShowVectors();
         //this->DrawDebugText();
         ImDui::Render();
 ;       hr = pRT->EndDraw();

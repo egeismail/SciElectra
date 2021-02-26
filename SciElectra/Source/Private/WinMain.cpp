@@ -16,7 +16,7 @@ int CALLBACK WinMain(HINSTANCE,HINSTANCE,LPSTR,INT){
     circle2.radius = 15;
     Entity entity1(
         Vector2(0,0),//Vector2(1 * windowRect.right / 2.f, windowRect.bottom / 2.f - circle1.radius / 2),
-        Vector2(0, 0),
+        Vector2(10,0),
         14982844642000.8839,
         &circle1,
         DrawTypes::Circle
@@ -29,7 +29,7 @@ int CALLBACK WinMain(HINSTANCE,HINSTANCE,LPSTR,INT){
         DrawTypes::Circle
     );
     simulation.electra.addEntity(entity1);
-    simulation.electra.addEntity(entity2);
+    //simulation.electra.addEntity(entity2);
     return simulation.Start();
 }
 

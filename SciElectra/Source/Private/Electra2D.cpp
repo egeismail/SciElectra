@@ -9,6 +9,7 @@ Electra2D::~Electra2D()
 
 int Electra2D::Tick()
 {
+	sTime = std::chrono::high_resolution_clock::now();
 	/*EXECUTE RULES*/
 	/*if (this->Rules & Rules::CollisionWindow)
 		this->Collision();*/
@@ -17,7 +18,13 @@ int Electra2D::Tick()
 	if (this->Rules & Rules::Collision)
 		this->Collision();
 	this->ProcessPosition();
+	eTime = std::chrono::high_resolution_clock::now();
+	tickTime = eTime - sTime;
+	tickTimef = std::chrono::duration_cast<microseconds>(tickTime).count()/10e+5;
+	elapsedTimeUS += std::chrono::duration_cast<microseconds>(tickTime).count();
+
 	std::list<Entity>::iterator itr = this->entities.begin();
+
 	return 0;
 }
 
@@ -43,7 +50,7 @@ int Electra2D::ProcessPosition() {
 	for (std::list<Entity>::iterator entity = entities.begin();entity != entities.end();++entity)
 	{
 		if(entity->velocity.x != NAN && entity->velocity.y != NAN){
-			entity->pos += entity->velocity;
+			entity->pos += entity->velocity*tickTimef;
 		}
 	}
 	return 0;

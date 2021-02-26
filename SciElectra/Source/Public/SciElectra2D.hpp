@@ -58,6 +58,8 @@ public:
 	ID2D1SolidColorBrush* pDebugText = NULL;
 	ID2D1SolidColorBrush* pGrid = NULL;
 	ID2D1SolidColorBrush* pGridBack = NULL;
+	ID2D1SolidColorBrush* pFreeBrush = NULL;
+
 	int RegisterWindows();
 #pragma endregion
 #pragma region Render
@@ -79,7 +81,9 @@ public:
 	float zoomLinearer = 0;
 	size_t renderingObjects;
 	POINT WorldToScreen(Vector2 Pos);
+	D2D1_POINT_2F WorldToScreen_D2D1(Vector2 Pos);
 	POINT WorldToScreen_bc(Vector2 Pos, Vector2 Camera);
+	D2D1_POINT_2F WorldToScreen_bc_D2D1(Vector2 Pos, Vector2 Camera);
 	long WorldToScreenX(float x);
 	long WorldToScreenY(float y);
 	Vector2 ScreenToWorld(POINT Pos);

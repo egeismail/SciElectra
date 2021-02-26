@@ -1,8 +1,11 @@
 #pragma once
 #include <d2d1.h>
 #include <list>
+#include <chrono>
 #include "elecmath.hpp"
+
 #define ENTITY_LIMIT 1024
+using namespace std::chrono;
 
 enum DrawTypes
 {
@@ -58,8 +61,14 @@ public:
 	Electra2D();
 	~Electra2D();
 	size_t Rules = 0b110;
+	unsigned long long elapsedTimeUS;
+	float tickTimef = 0.001f;
 	int Tick();
 	std::list<Entity> entities;
+	/*Timing*/
+	
+	std::chrono::steady_clock::time_point sTime, eTime;
+	std::chrono::steady_clock::duration  tickTime;
 	/*Interaction*/
 	int addEntity(Entity entity);
 	int removeEntity(size_t id);
