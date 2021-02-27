@@ -62,7 +62,10 @@ public:
 	~Electra2D();
 	size_t Rules = 0b110;
 	unsigned long long elapsedTimeUS;
+	float resolution = 0.001f;
 	float tickTimef = 0.001f;
+	float timeMultiplier = 1;
+	float tickTimef_C = tickTimef* timeMultiplier;
 	int Tick();
 	std::list<Entity> entities;
 	/*Timing*/

@@ -97,7 +97,7 @@ BOOL Window::createWindow() {
     return 1;
 }
 BOOL Window::displayWindow() {
-    return ShowWindow(hWnd, SW_SHOW) && UpdateWindow(hWnd);
+    return ShowWindow(hWnd, SW_SHOWMAXIMIZED) && UpdateWindow(hWnd);
 }
 BOOL Window::listenMessages() {
     MSG msg = { 0 };

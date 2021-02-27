@@ -59,7 +59,7 @@ public:
 	ID2D1SolidColorBrush* pGrid = NULL;
 	ID2D1SolidColorBrush* pGridBack = NULL;
 	ID2D1SolidColorBrush* pFreeBrush = NULL;
-
+	unsigned int SyncTick = 1;
 	int RegisterWindows();
 #pragma endregion
 #pragma region Render
@@ -99,6 +99,7 @@ public:
 	bool controlDown;
 	bool shiftDown;
 	bool mouseLeftDown;
+	bool mouseMiddleDown;
 	int  deltaMouseWheel;
 	POINT mousePos;
 	POINT deltaMousePos;

@@ -4,7 +4,7 @@
 #define Vector(x,y) Vector2(x,y)
 //#define Angle(pitch) Angle(pitch)
 #define GRAVITATIONAL_CONSTANT 6.67430e-11f
-#define PI 3.1415926535926535
+#define PI 3.141592
 
 struct Angle
 {
@@ -50,7 +50,9 @@ struct Vector2
 	Angle getAngle() {
 		return Angle(atan2f(y, x));
 	}
-
+	Angle getAngleTo(Vector2 target) {
+		return Angle(atan2f(target.y-y, target.x-x));
+	}
     Vector2& operator+=(Vector2 const& other) {
         x += other.x;
         y += other.y;
@@ -83,14 +85,16 @@ struct Vector2
         y = a.y;
         return *this;
     }
-    Vector2 operator+(const Vector2& a) { return Vector2(x + a.x, y + a.y); }
-    Vector2 operator-(const Vector2& a) { return Vector2(x - a.x, y - a.y); }
-    Vector2 operator*(const Vector2& a) { return Vector2(x * a.x, y * a.y); }
     /*Vector2 operator*(const Angle& anglus) {
         float size = this->getLength();
         return Vector2(size * cosf(anglus.pitch), size * sinf(anglus.pitch));
     }*/
+    Vector2 operator+(const Vector2& a) { return Vector2(x + a.x, y + a.y); }
+    Vector2 operator-(const Vector2& a) { return Vector2(x - a.x, y - a.y); }
+    Vector2 operator*(const Vector2& a) { return Vector2(x * a.x, y * a.y); }
     Vector2 operator/(const Vector2& a) { return Vector2(x / a.x, y / a.y); }
+	
+    
     Vector2 operator*(const float& a) { return Vector2(x * a, y * a); }
     Vector2 operator/(const float& a) { return Vector2(x / a, y / a); }
     D2D1_POINT_2F D2D1_POINT_2F() { return D2D1::Point2F(x, y); }

@@ -361,7 +361,7 @@ int SciElectra2D::ShowVectors()
         Vector2 entryPoint = entity->pos+ Vector2(objCircle->radius*cosf(ang.pitch),
                                                   objCircle->radius*sinf(ang.pitch));
 		Vector2 endPoint = entryPoint +(entity->velocity)*5;
-        pFreeBrush->SetColor(D2D1::ColorF(0xffffff));
+        pFreeBrush->SetColor(D2D1::ColorF(0xff0000));
         pRT->DrawLine(
             WorldToScreen_D2D1(entryPoint),
             WorldToScreen_D2D1(endPoint),
@@ -375,16 +375,16 @@ BOOL SciElectra2D::Start()
     simulationStartTime = steady_clock::now();
     steady_clock::time_point lastRender = steady_clock::now();
     while (!this->isDone) {
+		sTime = steady_clock::now();
+
         /*Events*/
         MSG msg;
         BOOL hResult = this->root->listenMessage(&msg);
-        sTime = steady_clock::now();
         if (hResult == 0)
             return 0;/*WM_QUIT*/
         if (hResult == -1)
             return -1;/*ERROR*/
-        /*Physics*/
-        this->electra.Tick();
+        
         /*Interactions*/
         static float animIntegrate = 0;
         ExecuteInteractions();
@@ -398,6 +398,15 @@ BOOL SciElectra2D::Start()
         eT = (duration_cast<microseconds>(frameTime).count() / 10e+5f);
         fps = 1.f / (duration_cast<microseconds>(frameTime).count() / 10e+5f);
         simElapsedTime = (duration_cast<microseconds>(elapsedTime).count() / 10e+5f);
+		/*Physics*/
+            
+        SyncTick = (unsigned int)(eT / electra.tickTimef);
+		for (int tickIteration = 0; tickIteration < SyncTick; tickIteration++)
+		{
+			this->electra.Tick();
+		}
+
+
         //if(duration_cast<milliseconds>(eTime - lastRender).count() > 16){
         //    swprintf_s(FPSText, DEBUG_TEXT_LENGTH,    L"FPS          : %f", fps);
         //    swprintf_s(ElapsedTime, DEBUG_TEXT_LENGTH, L"Elapsed Time : %f", simElapsedTime);
@@ -471,12 +480,24 @@ int SciElectra2D::RegisterWindows() {
         sst << "Frametime : " << eT*1000.0f << " ms; :" << duration_cast<microseconds>(frameTime).count() << "us";
         ImDui::Text(sst.str().c_str());
 
+		sst.str(std::string()); // Frametime Sim
+		sst << "Frametime Sim : " << duration_cast<microseconds>(electra.tickTime).count() << "ms";
+		ImDui::Text(sst.str().c_str());
+
 		sst.str(std::string()); // Elapsed Time
 		sst << "Elapsed Time : " << simElapsedTime << " s";
 		ImDui::Text(sst.str().c_str());
 
 		sst.str(std::string()); // Elapsed Time
-		sst << "Elapsed Time Sim : " << (electra.elapsedTimeUS)/10e+5 << " s";
+		sst << "Elapsed Time Sim : " << (electra.elapsedTimeUS)/10e+6 << " s";
+		ImDui::Text(sst.str().c_str());
+
+		sst.str(std::string()); // Elapsed Time
+        sst << "Tick per render: " << (SyncTick) << " t/r";
+		ImDui::Text(sst.str().c_str());
+        
+	    sst.str(std::string()); // Render And Simulation fTime
+        sst << "R|S : " << eT << "," << electra.tickTimef;
 		ImDui::Text(sst.str().c_str());
 
         sst.str(std::string()); // Renderables
@@ -591,16 +612,15 @@ int SciElectra2D::RegisterWindows() {
                 NewtonianGravity= this->electra.Rules & Rules::NewtonianGravity ? true : false,
                 Collision= this->electra.Rules & Rules::Collision ? true : false,
                 CollisionWindow= this->electra.Rules & Rules::CollisionWindow ? true : false;
-    static float timeMultiplier = 1.0f;
     if (ShowSimulationSettings) {
         ImDui::BeginWindow("Simulation Settings", &ShowSimulationSettings, ImFloat2(400, 50), ImFloat2(400, 400));
         ImDui::PushItemWidth(150);
         if (ImDui::Button("Reset")) {
-            timeMultiplier = 1.0f;
+            electra.timeMultiplier = 1.0f;
         }
         ImDui::SameLine();
         ImDui::PushItemWidth(200);
-        ImDui::SliderFloat("Time Multiplier", &timeMultiplier, 0.1, 2, "%.3f");
+        ImDui::SliderFloat("Time Multiplier", &electra.timeMultiplier, 0.1, 10, "%.3f");
         ImDui::CheckBox("Multi Effect", &MultiEffect); ImDui::SameLine();
         ImDui::CheckBox("Newtonian Gravity", &NewtonianGravity);
         ImDui::CheckBox("Collision", &Collision); ImDui::SameLine();
@@ -838,6 +858,9 @@ BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
             zoom *= deltaMouseWheel > 0 ? 1.1 : 0.9;
             WindowRectUpdate();
             break; 
+        case WM_MBUTTONDOWN: mouseMiddleDown = true; break;
+        case WM_MBUTTONUP:   mouseMiddleDown = false; break;
+
         case WM_MOUSEMOVE:
             events.MousePos.x = (signed short)(msg.lParam);
             events.MousePos.y = (signed short)(msg.lParam >> 16);
@@ -957,7 +980,7 @@ void SciElectra2D::ExecuteInteractions()
 	}
     //static float variableLerp;
 	/*Camera Movement*/
-    if (controlDown && mouseLeftDown) {
+    if (mouseMiddleDown) {
         if (!dbs_initiated) {
             dbs_initiated = true;
             dbs_startPointCamera = CameraPos;
@@ -969,17 +992,25 @@ void SciElectra2D::ExecuteInteractions()
                 animIntegrate = 0;
             }*/
             WindowRectUpdate();
-            dbs_endPoint = mousePos;
-            //dbs_distance.x = dbs_endPoint.x - dbs_startPoint.x;
-            //dbs_distance.y = dbs_endPoint.y - dbs_startPoint.y;
-            dbs_distanceVec = ScreenToWorld_bc(dbs_endPoint,dbs_startPointCamera)*-1;
-            //variableLerp = (dbs_distanceVec - ScreenToWorld(dbs_startPoint)).getLength() / ScreenToWorld_bc(dbs_startPoint, dbs_startPointCamera).getDistance(dbs_distanceVec);
-            //variableLerp = variableLerp * variableLerp;
-			//dPrint("Normalized", (dbs_distanceVec - ScreenToWorld(dbs_startPoint)).getLength() / ScreenToWorld_bc(dbs_startPoint, dbs_startPointCamera).getDistance(dbs_distanceVec));
-			//dPrint("Curved", variableLerp);
-            //float tY  = cubicBezier(.35,.9, animIntegrate);
-            intap++;
-            CameraPos += (dbs_distanceVec-ScreenToWorld(dbs_startPoint))*eT*MovementLerp;
+   //         dbs_endPoint = mousePos;
+   //         //dbs_distance.x = dbs_endPoint.x - dbs_startPoint.x;
+   //         //dbs_distance.y = dbs_endPoint.y - dbs_startPoint.y;
+   //         dbs_distanceVec = ScreenToWorld_bc(dbs_endPoint,dbs_startPointCamera);
+   //         //variableLerp = (dbs_distanceVec - ScreenToWorld(dbs_startPoint)).getLength() / ScreenToWorld_bc(dbs_startPoint, dbs_startPointCamera).getDistance(dbs_distanceVec);
+   //         //variableLerp = variableLerp * variableLerp;
+			////dPrint("Normalized", (dbs_distanceVec - ScreenToWorld(dbs_startPoint)).getLength() / ScreenToWorld_bc(dbs_startPoint, dbs_startPointCamera).getDistance(dbs_distanceVec));
+			////dPrint("Curved", variableLerp);
+   //         //float tY  = cubicBezier(.35,.9, animIntegrate);
+   //         intap++;
+   //         CameraPos = dbs_distanceVec;
+   //         //CameraPos += (dbs_distanceVec-ScreenToWorld(dbs_startPoint))*eT*MovementLerp;
+
+			dbs_endPoint = mousePos;
+			dbs_distance.x = dbs_endPoint.x - dbs_startPoint.x;
+			dbs_distance.y = dbs_endPoint.y - dbs_startPoint.y;
+			CameraPos = (dbs_startPointCamera - Vector(dbs_distance.x / zoom, -dbs_distance.y / zoom));
+
+
         }
     }
     else {
