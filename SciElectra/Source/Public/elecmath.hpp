@@ -47,12 +47,20 @@ struct Vector2
     float getDistance(Vector2 from) {
         return sqrt(pow(x - from.x, 2) + pow(y - from.y, 2));
     }
+    float dot(Vector2 right) {
+        return x * right.x + y * right.y;
+    }
 	Angle getAngle() {
 		return Angle(atan2f(y, x));
 	}
 	Angle getAngleTo(Vector2 target) {
 		return Angle(atan2f(target.y-y, target.x-x));
 	}
+    void reAngle(Angle angle) {
+        float magnitude = getLength();
+        x = magnitude * cosf(angle.pitch);
+        y = magnitude * sinf(angle.pitch);
+    }
     Vector2& operator+=(Vector2 const& other) {
         x += other.x;
         y += other.y;
