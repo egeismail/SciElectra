@@ -13,11 +13,11 @@ int Electra2D::Tick()
 	/*EXECUTE RULES*/
 	/*if (this->Rules & Rules::CollisionWindow)
 		this->Collision();*/
+	this->ProcessPosition();
 	if (this->Rules & Rules::NewtonianGravity)
 		this->NewtonianGravity();
 	if (this->Rules & Rules::Collision)
 		this->Collision();
-	this->ProcessPosition();
 	eTime = std::chrono::high_resolution_clock::now();
 	tickTime = eTime - sTime;
 	tickTimef = std::chrono::duration_cast<microseconds>(tickTime).count()/10e+5;
@@ -97,16 +97,17 @@ int Electra2D::Collision()
 			if (affecting.type == DrawTypes::Circle && affected.type == DrawTypes::Circle && affecting.object->id != affected.object->id) {
 				float distance = affected.pos.getDistance(affecting.pos);
 				float limit = ((ObjectCircle*)affected.object)->radius + ((ObjectCircle*)affecting.object)->radius;
-				if (distance <= limit) {
+				if (distance < limit) {
 					float m1 = affecting.mass, m2 = affected.mass,M=m1+m2;
 					Vector2 v1 = affecting.velocity, v2 = affected.velocity;
 					Vector2 r1 = affecting.pos, r2 = affected.pos;
-					float d2 = powf(r1.getDistance(r2), 2);
-
-					Vector2 u1 = v1-((r1 - r2)*(v1 - v2).dot(r1 - r2)*2 * m2)/(d2 *(m1+m2)),
-						    u2 = v2 - ((r2 - r1)* (v2 - v1).dot(r2 - r1) * 2 * m1) / (d2 * (m1 + m2)) ;
-					affecting.velocity = u1;
-					affected.velocity = u2;
+					float d = (r1 - r2).getLength()* (r1 - r2).getLength();
+					float dP1 = (v1 - v2).dot(r1 - r2),
+						  dP2 = (v2 - v1).dot(r2 - r1);
+					affecting.velocity = v1 - (r1 - r2)*(dP1 * 2 * m2) / (d * M);
+					affected.velocity = v2  - (r2 - r1)*(dP2 * 2 * m1) / (d * M);
+					dPrint("V1", affecting.velocity);
+					dPrint("V2", affected.velocity);
 				}
 			}
 		}

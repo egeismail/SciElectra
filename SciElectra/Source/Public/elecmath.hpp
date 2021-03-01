@@ -1,6 +1,8 @@
 #pragma once
 #include <d2d1.h>
 #include <math.h>
+#include <sstream>
+
 #define Vector(x,y) Vector2(x,y)
 //#define Angle(pitch) Angle(pitch)
 #define GRAVITATIONAL_CONSTANT 6.67430e-11f
@@ -101,8 +103,6 @@ struct Vector2
     Vector2 operator-(const Vector2& a) { return Vector2(x - a.x, y - a.y); }
     Vector2 operator*(const Vector2& a) { return Vector2(x * a.x, y * a.y); }
     Vector2 operator/(const Vector2& a) { return Vector2(x / a.x, y / a.y); }
-	
-    
     Vector2 operator*(const float& a) { return Vector2(x * a, y * a); }
     Vector2 operator/(const float& a) { return Vector2(x / a, y / a); }
     D2D1_POINT_2F D2D1_POINT_2F() { return D2D1::Point2F(x, y); }
@@ -125,3 +125,13 @@ struct Vector2
 
 
 
+static void dPrint(const char* title, double number) {
+    std::stringstream pps;
+    pps << title << " : " << number << "\n";
+    OutputDebugStringA(pps.str().c_str());
+}
+static void dPrint(const char* title, Vector2 vect) {
+    std::stringstream pps;
+    pps << title << " : " << "(" << vect.x << "," << vect.y << ")\n";
+    OutputDebugStringA(pps.str().c_str());
+}

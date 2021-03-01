@@ -795,16 +795,7 @@ int SciElectra2D::DrawObjects() {
 
 #pragma endregion
 #pragma region Events
-static void dPrint(const char* title, double number) {
-	std::stringstream pps;
-	pps << title << " : " << number << "\n";
-	OutputDebugStringA(pps.str().c_str());
-}
-static void dPrint(const char* title, Vector2 vect) {
-	std::stringstream pps;
-	pps << title << " : " << "(" << vect.x << "," << vect.y << ")\n";
-	OutputDebugStringA(pps.str().c_str());
-}
+
 static SciElectra2D* hook = NULL;
 LRESULT SciElectra2D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {

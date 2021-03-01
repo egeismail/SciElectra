@@ -13,21 +13,21 @@ void scenario_collision_0(SciElectra2D& simulation) {
     simulation.CameraPos = Vector2(0, 0);
     simulation.zoom = 4.17;
     simulation.electra.timeMultiplier = 0.3;
-    simulation.electra.resolution = 0.0001;
+    simulation.electra.resolution = 0.001;
     simulation.ShowObjectManager = true;
     circle1.radius = 5;
     circle2.radius = 2;
     Entity entity1(
         Vector2(0, 200),
         Vector2(0, -20),
-        10,//904982844642000.8839,
+        5,//904982844642000.8839,
         &circle1,
         DrawTypes::Circle
     ),
         entity2(
-            Vector2(-50, 200),
-            Vector2(5, -20),
-            2,
+            Vector2(-200, 200),
+            Vector2(20, -20),
+            5,
             &circle2,
             DrawTypes::Circle
         );
@@ -39,21 +39,21 @@ void scenario_collision_1(SciElectra2D& simulation) {
     simulation.CameraPos = Vector2(0, 0);
     simulation.zoom = 4.17;
     simulation.electra.timeMultiplier = 0.3;
-    simulation.electra.resolution = 0.0001;
+    simulation.electra.resolution = 0.01;
     simulation.ShowObjectManager = true;
     circle1.radius = 5;
-    circle2.radius = 2;
+    circle2.radius = 5;
     Entity entity1(
         Vector2(-200, 0),
         Vector2(20, 0),
-        10,//904982844642000.8839,
+        5,//904982844642000.8839,
         &circle1,
         DrawTypes::Circle
     ),
         entity2(
             Vector2(0, 0),
             Vector2(0, 0),
-            2,
+            5,
             &circle2,
             DrawTypes::Circle
         );
