@@ -60,7 +60,7 @@ class Electra2D
 public:
 	Electra2D();
 	~Electra2D();
-	size_t Rules = 0b110;
+	size_t Rules = 6;
 	unsigned long long elapsedTimeUS;
 	float resolution = 0.001f;
 	float tickTimef = 0.001f;
@@ -78,7 +78,8 @@ public:
 	int ProcessPosition();
 	/*RULES*/
 	int NewtonianGravity();
-	int Collision();
+	int Collision_1();
+	int Collision_2();
 	//int CollisionWindow();
 private:
 	size_t entityCounter;

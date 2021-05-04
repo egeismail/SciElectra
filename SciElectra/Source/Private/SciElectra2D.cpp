@@ -847,6 +847,18 @@ BOOL SciElectra2D::ProcessMsgEvent(MSG msg) {
             events.MouseWheel = GET_WHEEL_DELTA_WPARAM(msg.wParam) > 0 ? +1 : -1;
             deltaMouseWheel = GET_WHEEL_DELTA_WPARAM(msg.wParam);
             zoom *= deltaMouseWheel > 0 ? 1.1 : 0.9;
+            /*POINT mouse;
+            GetCursorPos(&mouse);
+            static POINT mousebefore;
+            if(mousebefore.x != mouse.x || mousebefore.y != mouse.y){
+                CameraPos = ScreenToWorld(mouse);
+                mousebefore.x=mouse.x;
+                mousebefore.y=mouse.y;
+            }
+            else {
+                POINT ms = WorldToScreen(CameraPos);
+                SetCursorPos(ms.x, ms.y);
+            }*/
             WindowRectUpdate();
             break; 
         case WM_MBUTTONDOWN: mouseMiddleDown = true; break;

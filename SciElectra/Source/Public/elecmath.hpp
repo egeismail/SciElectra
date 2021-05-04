@@ -43,6 +43,9 @@ struct Vector2
 {
     float x, y;
     Vector2(float x_ = 0, float y_ = 0) { x = x_; y = y_; }
+    Vector2 Copy() {
+        return Vector2(x,y);
+    }
     float getLength() {
         return sqrt((float)(x * x + y * y));
     }
@@ -51,6 +54,10 @@ struct Vector2
     }
     float dot(Vector2 right) {
         return x * right.x + y * right.y;
+    }
+    void negate() {
+        x = -x;
+        y = -y;
     }
 	Angle getAngle() {
 		return Angle(atan2f(y, x));
