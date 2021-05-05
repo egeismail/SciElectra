@@ -206,6 +206,10 @@ Vector2 SciElectra2D::ScreenToWorld_bc(POINT Pos,Vector2 Camera)
 	Vector2 rPos = (sPos / zoom) + Camera;
 	return rPos;
 }
+Vector2 SciElectra2D::TransformWTS(POINT Pos)
+{
+    return Vector2(Pos.x, -Pos.y) / zoom;
+}
 float SciElectra2D::ScreenToWorldX(long x)
 {
     return (x-windowSize.width/2)/zoom + CameraPos.x;
@@ -356,17 +360,37 @@ int SciElectra2D::ShowVectors()
 		return 0;
     for (std::list<Entity>::iterator entity = this->electra.entities.begin(); entity != electra.entities.end(); entity++)
     {
+        
         ObjectCircle* objCircle = (ObjectCircle*)entity->object;
         Angle ang = entity->velocity.getAngle();
         Vector2 entryPoint = entity->pos+ Vector2(objCircle->radius*cosf(ang.pitch),
                                                   objCircle->radius*sinf(ang.pitch));
 		Vector2 endPoint = entryPoint +(entity->velocity)*5;
-        pFreeBrush->SetColor(D2D1::ColorF(0xff0000));
+        pFreeBrush->SetColor(D2D1::ColorF(readablecolors[objCircle->id% (sizeof(readablecolors) / 4)+2]));
+
         pRT->DrawLine(
             WorldToScreen_D2D1(entryPoint),
             WorldToScreen_D2D1(endPoint),
             pFreeBrush
         );
+        if(showAngles){
+            for (Entity& reference : electra.entities)
+            {
+                if (reference.object->id != objCircle->id && reference.isRenderable(windowWorldRect)) {
+                    pFreeBrush->SetColor(D2D1::ColorF(readablecolors[reference.object->id%(sizeof(readablecolors)/4)]));
+                    float angle = entity->pos.getAngleTo(reference.pos).pitch;
+                    Vector2 endPointOffset = Vector2(
+                        (objCircle->radius+angleWidthOffset)*cosf(angle),
+                        (objCircle->radius + angleWidthOffset) * sinf(angle)
+                    );
+                    pRT->DrawLine(
+                        WorldToScreen_D2D1(entity->pos),
+                        WorldToScreen_D2D1(entity->pos+endPointOffset),
+                        pFreeBrush
+                    );
+                }
+            }
+        }
     }
     return 0;
 }
@@ -620,7 +644,9 @@ int SciElectra2D::RegisterWindows() {
         }
         ImDui::SameLine();
         ImDui::PushItemWidth(200);
-        ImDui::SliderFloat("Time Multiplier", &electra.timeMultiplier, 0.1, 10, "%.3f");
+
+        ImDui::SliderFloat("Time Multiplier", &electra.timeMultiplier, 0.001, 2, "%.3f");
+        ImDui::SliderFloat("Mouse Drag Strength", &mouseDragStrength, 0.1, 10, "%.3f");
         ImDui::CheckBox("Multi Effect", &MultiEffect); ImDui::SameLine();
         ImDui::CheckBox("Newtonian Gravity", &NewtonianGravity);
         ImDui::CheckBox("Collision", &Collision); ImDui::SameLine();
@@ -639,6 +665,8 @@ int SciElectra2D::RegisterWindows() {
         ImDui::BeginWindow("Graphical Settings", &ShowGraphicalSettings, ImFloat2(400, 50), ImFloat2(200, 300));
 		ImDui::CheckBox("Show Grids", &showGrids);
 		ImDui::CheckBox("Show Vectors", &showVectors);
+		ImDui::CheckBox("Show Angles", &showAngles);
+
         ImDui::EndWindow();
     }
     if (ShowObjectManager) {
@@ -955,6 +983,8 @@ void SciElectra2D::ExecuteInteractions()
 	if (!mouseLeftDown) {
 		Vector2 mouseWPos = ScreenToWorld(mousePos);
 		bool isSelected = false;
+        
+        
 		for (std::list<Entity>::iterator i = this->electra.entities.begin(); i != electra.entities.end(); i++)
 		{
 
@@ -962,10 +992,14 @@ void SciElectra2D::ExecuteInteractions()
 				isSelected = true;
 				/*Interacted object found and selecting*/
 				hoverObject = i->object->id;
-				break;
 			}
+            if (i->object->id == boundedObject) {
+                Vector2 mouseVelocity = TransformWTS(deltaMousePos)*mouseDragStrength;
+                i->velocity = mouseVelocity;
+            }
 			if (!isSelected) { hoverObject = -1; }
 		}
+        boundedObject = -1; offsetObjectFMouse.x = 0; offsetObjectFMouse.y = 0;
 	}
     if (mouseLeftDown && ShowObjectManager) {
         Vector2 mouseWPos = ScreenToWorld(mousePos);
@@ -981,6 +1015,36 @@ void SciElectra2D::ExecuteInteractions()
 	}else {
 		lastChangeId = -1;
 	}
+    // Move Object
+    if (mouseLeftDown) {
+        Vector2 mouseWPos = ScreenToWorld(mousePos);
+        bool isSelected = false;
+        if (boundedObject >= 0) {
+            isSelected = true;
+
+            for (Entity& entity: this->electra.entities) {
+                if (entity.object->id == boundedObject) {
+                    entity.pos = mouseWPos - offsetObjectFMouse;
+                    break;
+                }
+            }
+        }else{
+            for (std::list<Entity>::iterator i = this->electra.entities.begin(); i != electra.entities.end(); i++)
+            {
+                if (i->isInteractedPoint(mouseWPos)) {
+                    isSelected = true;
+                    /*Interacted object found and selecting*/
+                    hoverObject = i->object->id;
+                    if (offsetObjectFMouse.getLength() == 0) {
+                        offsetObjectFMouse = mouseWPos - i->pos;
+                        boundedObject = i->object->id;
+                    }
+                    break;
+                }
+                if (!isSelected) { hoverObject = -1; offsetObjectFMouse.x = 0; offsetObjectFMouse.y = 0; }
+            }
+        }
+    }
     //static float variableLerp;
 	/*Camera Movement*/
     if (mouseMiddleDown) {

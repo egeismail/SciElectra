@@ -39,6 +39,8 @@ struct Entity {
 		object = obj;
 		type = type_;
 	}
+	Entity() {
+	}
 	bool isRenderable(D2D1_RECT_F worldRect){
 		if (type == DrawTypes::Circle) {
 			float radius = ((ObjectCircle*)object)->radius;
@@ -65,6 +67,7 @@ public:
 	float resolution = 0.001f;
 	float tickTimef = 0.001f;
 	float timeMultiplier = 1;
+	float elasticity = 1;
 	float tickTimef_C = tickTimef* timeMultiplier;
 	int Tick();
 	std::list<Entity> entities;

@@ -16,7 +16,7 @@ using namespace std::chrono;
 #define DEBUG_TEXT_LIMIT 64
 #define SE2D_DEBUG 1
 #define HISTANCE GetModuleHandle(NULL)
-
+#define EARTH 5.972e+24f
 static const WCHAR fDebugText[] = L"Consolas";
 static const FLOAT fDebugSize   = 12;
 class SciElectra2D
@@ -88,14 +88,31 @@ public:
 	long WorldToScreenY(float y);
 	Vector2 ScreenToWorld(POINT Pos);
 	Vector2 ScreenToWorld_bc(POINT Pos, Vector2 Camera);
+	Vector2 TransformWTS(POINT Pos);
 	float ScreenToWorldX(long x);
 	float ScreenToWorldY(long y);
 	int WindowRectUpdate();
 	bool showGrids = true;
 	bool showVectors = true;
+	bool showAngles = false;
+	bool angleWidthOffset = 20;
 	int ShowGrids();
 	int ShowVectors();
 #pragma endregion
+	const int readablecolors[12] = {
+		0xFF0000,
+		0x800000,
+		0xFFFF00,
+		0x808000,
+		0x00FF00,
+		0x008000,
+		0x00FFFF,
+		0x008080,
+		0x0000FF,
+		0x000080,
+		0xFF00FF,
+		0x800080
+	};
 	bool controlDown;
 	bool shiftDown;
 	bool mouseLeftDown;
@@ -103,6 +120,9 @@ public:
 	int  deltaMouseWheel;
 	POINT mousePos;
 	POINT deltaMousePos;
+	Vector2 offsetObjectFMouse;
+	float mouseDragStrength = 4.0;
+	int boundedObject = -1;
 //Delta By Distance
 	bool dbs_initiated;
 	Vector2 dbs_startPointCamera;
