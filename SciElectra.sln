@@ -5,16 +5,32 @@ VisualStudioVersion = 16.0.30717.126
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciElectra", "SciElectra\SciElectra.vcxproj", "{95D5D850-F482-43BC-90C8-22A58DE9A7B4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SciElectra3D", "SciElectra3D\SciElectra3D.vcxproj", "{66796ABE-9C62-450F-AFE7-44721ED9A7FD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
+		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Debug|x64.ActiveCfg = Debug|x64
 		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Debug|x64.Build.0 = Debug|x64
+		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Debug|x86.ActiveCfg = Debug|Win32
+		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Debug|x86.Build.0 = Debug|Win32
 		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Release|x64.ActiveCfg = Release|x64
 		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Release|x64.Build.0 = Release|x64
+		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Release|x86.ActiveCfg = Release|Win32
+		{95D5D850-F482-43BC-90C8-22A58DE9A7B4}.Release|x86.Build.0 = Release|Win32
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Debug|x64.ActiveCfg = Debug|x64
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Debug|x64.Build.0 = Debug|x64
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Debug|x86.ActiveCfg = Debug|Win32
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Debug|x86.Build.0 = Debug|Win32
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Release|x64.ActiveCfg = Release|x64
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Release|x64.Build.0 = Release|x64
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Release|x86.ActiveCfg = Release|Win32
+		{66796ABE-9C62-450F-AFE7-44721ED9A7FD}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
