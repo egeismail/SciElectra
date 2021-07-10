@@ -1,16 +1,13 @@
 #pragma once
-#include <d2d1.h>
+#include <glm/glm.hpp>
 #include <list>
 #include <chrono>
-#include "elecmath.hpp"
-
-#define ENTITY_LIMIT 1024
+#include "Model.hpp"
 using namespace std::chrono;
 
-enum DrawTypes
-{
-	Circle=0x1
-};
+#define ENTITY_LIMIT 1024
+
+
 typedef unsigned char DrawType;
 enum Rules {
 	MultiEffect = 0x1, // When calculating velocity in some rules, calculates affecting and affected entities in same tick
@@ -19,27 +16,27 @@ enum Rules {
 	Collision = 0x4,
 	CollisionWindow = 0x80000000,
 };
-struct Object {
-	size_t id;
-};
-struct ObjectCircle : Object{
-	float radius;
-};
+
 struct Entity {
-	DrawType type = NULL;
-	Vector3 pos;
-	Vector3 velocity;
+	size_t id;
+	glm::vec3 pos;
+	glm::vec3 velocity;
+	glm::vec3 rotation;
+	glm::mat4 model_m = glm::mat4(1.0f);
 	float mass = 1;
-	Object object;
+	Model* model;
 	bool UIVisible = false;
-	Entity(Vector3 pos_,Vector3 velocity_,float mass_,Object obj) {
+	Entity(glm::vec3 pos_,glm::vec3 rotation_, glm::vec3 velocity_,float mass_,Model& model_) {
 		pos = pos_;
 		velocity = velocity_;
+		rotation = rotation_;
 		mass = mass_;
-		object = obj;
+		model = &model_;
+		updateModelMatrix();
+
 	}
-	Entity() {
-	}
+	void updateModelMatrix();
+	
 
 };
 class Electra3D

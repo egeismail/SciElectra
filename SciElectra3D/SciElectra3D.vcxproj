@@ -19,21 +19,25 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Public\elecmath.hpp" />
+    <ClInclude Include="Source\Public\Camera.hpp" />
     <ClInclude Include="Source\Public\Electra3D.hpp" />
-    <ClInclude Include="Source\Public\ImDui.h" />
     <ClInclude Include="Source\Public\Keyboard.hpp" />
+    <ClInclude Include="Source\Public\Model.hpp" />
     <ClInclude Include="Source\Public\SciElectra3D.hpp" />
+    <ClInclude Include="Source\Public\Shader.hpp" />
+    <ClInclude Include="Source\Public\stb_image.h" />
     <ClInclude Include="Source\Public\Window.hpp" />
-    <ClInclude Include="Source\Public\WinMain.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\Private\elecmath.cpp" />
     <ClCompile Include="Source\Private\Electra3D.cpp" />
     <ClCompile Include="Source\Private\Keyboard.cpp" />
     <ClCompile Include="Source\Private\SciElectra3D.cpp" />
     <ClCompile Include="Source\Private\Window.cpp" />
     <ClCompile Include="Source\Private\WinMain.cpp" />
+    <ClCompile Include="Source\Public\Camera.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -139,12 +143,16 @@
       <LanguageStandard_C>Default</LanguageStandard_C>
       <AdditionalIncludeDirectories>..\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>OpenGL32.lib;glew32s.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -164,5 +172,16 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\glm.0.9.9.800\build\native\glm.targets" Condition="Exists('..\packages\glm.0.9.9.800\build\native\glm.targets')" />
+    <Import Project="..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\glm.0.9.9.800\build\native\glm.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\glm.0.9.9.800\build\native\glm.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
+  </Target>
 </Project>

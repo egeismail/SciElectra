@@ -14,6 +14,7 @@ public:
 	Window(LPCWCHAR ClassName);
 	Window(LPCWCHAR ClassName, WNDPROC windowMessageProcess);
 	void Register(WNDPROC windowMessageProcess);
+	void RegisterOGL(WNDPROC windowMessageProcess);
 	void Register();
 	~Window();
 	BOOL createWindow();

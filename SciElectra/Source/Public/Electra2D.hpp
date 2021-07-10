@@ -67,7 +67,7 @@ public:
 	float resolution = 0.001f;
 	float tickTimef = 0.001f;
 	float timeMultiplier = 1;
-	float elasticity = 1;
+	float elasticity = .8;
 	float tickTimef_C = tickTimef* timeMultiplier;
 	int Tick();
 	std::list<Entity> entities;

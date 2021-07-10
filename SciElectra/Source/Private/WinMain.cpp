@@ -61,7 +61,7 @@ void scenario_collision_1(SciElectra2D& simulation) {
     simulation.electra.addEntity(entity2);
 }
 void scenario_collision_2(SciElectra2D& simulation) {
-#define COUNT_OF_ITEMS 80
+#define COUNT_OF_ITEMS 20
 #define RADIUS 100
     static ObjectCircle circles[COUNT_OF_ITEMS];
     static ObjectCircle circleSun;

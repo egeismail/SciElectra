@@ -36,6 +36,27 @@ void Window::Register(WNDPROC windowMessageProcess) {
 
     RegisterClassEx(&WindowClass);
 }
+void Window::RegisterOGL(WNDPROC windowMessageProcess) {
+    WindowClass.cbSize = sizeof(WNDCLASSEX);
+    WindowClass.style = CS_OWNDC;
+    WindowClass.cbClsExtra = 0;
+    WindowClass.cbWndExtra = 0;
+    WindowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    WindowClass.hbrBackground = NULL;
+
+    WindowClass.hIcon = LoadIcon(0, IDI_APPLICATION);
+    WindowClass.hIconSm = LoadIcon(0, IDI_APPLICATION);
+
+    WindowClass.lpszMenuName = nullptr;
+
+    WindowClass.lpszClassName = this->WindowClassName;
+
+    WindowClass.hInstance = HInstance();
+
+    this->WindowClass.lpfnWndProc = *windowMessageProcess;
+
+    RegisterClassEx(&WindowClass);
+}
 void Window::Register()
 {
     WindowClass.cbSize = sizeof(WNDCLASSEX);

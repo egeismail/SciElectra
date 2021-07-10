@@ -1,4 +1,6 @@
 #include "../Public/Electra3D.hpp"
+
+
 Electra3D::Electra3D()
 {
 }
@@ -9,7 +11,8 @@ Electra3D::~Electra3D()
 
 int Electra3D::Tick()
 {
-	sTime = std::chrono::high_resolution_clock::now();
+
+	sTime = high_resolution_clock::now();
 	/*EXECUTE RULES*/
 	/*if (this->Rules & Rules::CollisionWindow)
 		this->Collision();*/
@@ -18,11 +21,11 @@ int Electra3D::Tick()
 		this->NewtonianGravity();
 	if (this->Rules & Rules::Collision)
 		this->Collision_1();
-	eTime = std::chrono::high_resolution_clock::now();
+	eTime = high_resolution_clock::now();
 	tickTime = eTime - sTime;
-	tickTimef = std::chrono::duration_cast<microseconds>(tickTime).count()/10e+5;
+	tickTimef = duration_cast<microseconds>(tickTime).count()/10e+5;
 	tickTimef_C = resolution * timeMultiplier;
-	elapsedTimeUS += tickTimef_C*10e+6;//std::chrono::duration_cast<microseconds>(tickTime).count()* timeMultiplier * 2;
+	elapsedTimeUS += tickTimef_C*10e+6;//duration_cast<microseconds>(tickTime).count()* timeMultiplier * 2;
 
 	auto itr = this->entities.begin();
 
@@ -31,7 +34,7 @@ int Electra3D::Tick()
 
 int Electra3D::addEntity(Entity entity)
 {
-	entity.object.id = entityCounter;
+	entity.id = entityCounter;
 	entities.push_back(entity);
 	entityCounter++;
 	return 0;
@@ -40,33 +43,33 @@ int Electra3D::addEntity(Entity entity)
 int Electra3D::removeEntity(size_t id)
 {
 	std::list<Entity>::iterator it;
-	for (auto entity = entities.begin(); entity != entities.end();++entity) {
+	/*for (auto entity = entities.begin(); entity != entities.end();++entity) {
 		it++;
-		if (entity->object.id == id)
+		if (entity->id == id)
 			entities.erase(it);
-	}
+	}*/
 	return 0;
 }
 int Electra3D::ProcessPosition() {
-	for (auto entity = entities.begin();entity != entities.end();++entity)
+	/*for (auto entity = entities.begin();entity != entities.end();++entity)
 	{
-		if(entity->velocity.x != NAN && entity->velocity.y != NAN){
+		if(entity->velocity.x != NaN && entity->velocity.y != NAN){
 			entity->pos += entity->velocity*tickTimef_C;
 		}
-	}
+	}*/
 	return 0;
 
 }
 int Electra3D::NewtonianGravity()
 {
-	for ( Entity& affecting :  entities)
+	/*for ( Entity& affecting :  entities)
 	{
 		for (Entity& affected: entities)
 		{
-			if (affecting.object.id == affected.object.id) continue;
-			Vector3 diff = affecting.pos - affected.pos;
-			Angle toAffected = affecting.pos.getAngleTo(affected.pos);
-			Angle toAffecting = affected.pos.getAngleTo(affecting.pos);
+			if (affecting.id == affected.id) continue;
+			glm::vec3 diff = affecting.pos - affected.pos;
+			glm::vec3 toAffected = affecting.pos(affected.pos);
+			glm::vec3 toAffecting = affected.pos(affecting.pos);
 
 			float radius = affecting.pos.getDistance(affecting.pos);
 			float force = (affecting.mass * affected.mass * GRAVITATIONAL_CONSTANT) /
@@ -86,15 +89,21 @@ int Electra3D::NewtonianGravity()
 				);
 			}
 		}
-	}
+	}*/
 	return 0;
 }
 
 
-int Electra3D::Collision_1()
+int Electra3D::Collision_1(){
+	return 0;
+}
+
+void Entity::updateModelMatrix()
 {
-	
-	return 0;
+		model_m = glm::mat4(1.0f);
+		rotation = glm::clamp(rotation, -3.1415926535f, 3.1415926535f);
+		glm::rotate(model_m, rotation.x, glm::vec3(1.0f, 0, 0));
+		glm::rotate(model_m, rotation.y, glm::vec3(0, 1.0f, 0));
+		glm::rotate(model_m, rotation.z, glm::vec3(0, 0, 1.0f));
+		glm::translate(model_m, pos);
 }
-
-

@@ -22,7 +22,7 @@ HRESULT SciElectra3D::InitializeWindow(Window* root)
 {
     BOOL lr = true;
     /*Window Initialization*/
-    root->Register((WNDPROC)this->ElectraListener);
+    root->RegisterOGL((WNDPROC)this->ElectraListener);
     BOOL returnCode = root->createWindow();
 
     if (returnCode != 1) {
@@ -41,10 +41,10 @@ HRESULT SciElectra3D::InitializeWindow(Window* root)
     memset(&pfd, 0, sizeof(pfd));
     pfd.nSize = sizeof(pfd);
     pfd.nVersion = 1;
-    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+    pfd.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_SUPPORT_COMPOSITION;
     pfd.iPixelType = PFD_TYPE_RGBA;
     pfd.cColorBits = 32;
-    pfd.cDepthBits = 32;
+    pfd.cDepthBits = 8;
     pfd.iLayerType = PFD_MAIN_PLANE;
 
     const int pf = ChoosePixelFormat(hDC, &pfd);
@@ -58,15 +58,21 @@ HRESULT SciElectra3D::InitializeWindow(Window* root)
         return S_FALSE;
     }
 
-    DescribePixelFormat(hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+    /*DescribePixelFormat(hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd);*/
+    if (!DescribePixelFormat(hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd)) {
+        return S_FALSE;
+    }
+    if ((pfd.dwFlags & PFD_SUPPORT_OPENGL) != PFD_SUPPORT_OPENGL)
+        return false;
 
     hRC = wglCreateContext(hDC);
     wglMakeCurrent(hDC, hRC);
 
-    
     ShowWindow(hWnd, SW_SHOW);
     SetForegroundWindow(hWnd);
     SetFocus(hWnd);
+
+
     InitGLObjects();
 
     /*Debug Text*/
@@ -84,15 +90,11 @@ void SciElectra3D::InitGLObjects() {
 
     //Basic global variables
     glClearColor(0.6f, 0.9f, 1.0f, 1.0f);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
     glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
 
     //Check GL functionality
     glGetQueryiv(GL_SAMPLES_PASSED_ARB, GL_QUERY_COUNTER_BITS_ARB, &occlusionCullingSupported);
-
+ 
     //Attempt to enalbe vsync (if failure then oh well)
     wglSwapIntervalEXT(1);
 
@@ -105,40 +107,40 @@ void SciElectra3D::InitGLObjects() {
 float cubicBezier(float y1, float y2, float normalized) {
     return 3 * normalized * pow((1 - normalized), 2) * y1 + 3 * pow(normalized, 2) * (1 - normalized) * y2 + pow(normalized, 3);
 }
-POINT SciElectra3D::WorldToScreen(Vector3 Pos)
-{
-    POINT p;
-    p.x = 0;
-    p.y = 0;
-    return p;
-}
-POINT SciElectra3D::WorldToScreen_bc(Vector3 Pos,Vector3 Camera)
-{
-    POINT p;
-    p.x = 0;
-    p.y = 0;
-    return p;
-}
-Vector3 SciElectra3D::ScreenToWorld(POINT Pos)
-{
-    return Vector3(0, 0, 0);
-}
-Vector3 SciElectra3D::ScreenToWorld_bc(POINT Pos,Vector3 Camera)
-{
-    return Vector3(0, 0, 0);
-}
-Vector3 SciElectra3D::TransformWTS(POINT Pos)
-{
-    return Vector3(0, 0,0);
-}
-float SciElectra3D::ScreenToWorldX(long x)
-{
-    return 0;
-}
-float SciElectra3D::ScreenToWorldY(long y)
-{
-	return 0;
-}
+//POINT SciElectra3D::WorldToScreen(Vector3 Pos)
+//{
+//    POINT p;
+//    p.x = 0;
+//    p.y = 0;
+//    return p;
+//}
+//POINT SciElectra3D::WorldToScreen_bc(Vector3 Pos,Vector3 Camera)
+//{
+//    POINT p;
+//    p.x = 0;
+//    p.y = 0;
+//    return p;
+//}
+//Vector3 SciElectra3D::ScreenToWorld(POINT Pos)
+//{
+//    return Vector3(0, 0, 0);
+//}
+//Vector3 SciElectra3D::ScreenToWorld_bc(POINT Pos,Vector3 Camera)
+//{
+//    return Vector3(0, 0, 0);
+//}
+//Vector3 SciElectra3D::TransformWTS(POINT Pos)
+//{
+//    return Vector3(0, 0,0);
+//}
+//float SciElectra3D::ScreenToWorldX(long x)
+//{
+//    return 0;
+//}
+//float SciElectra3D::ScreenToWorldY(long y)
+//{
+//	return 0;
+//}
 int SciElectra3D::WindowRectUpdate()
 {
     return 0;
@@ -201,10 +203,16 @@ int SciElectra3D::RegisterWindows() {
 }
 
 BOOL SciElectra3D::Render() {
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    
+    for (Entity &ent : electra.entities)
+    {
+        mainShader.setMat4("projection", camera.projectionMatrix);
+        mainShader.setMat4("view", camera.viewMatrix);
+        mainShader.setMat4("model", ent.model_m);
+        ent.model->Draw(mainShader);
+    }
+    SwapBuffers(hDC);
     return S_OK;
 
 }
@@ -228,18 +236,18 @@ LRESULT SciElectra3D::ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
         message.wParam = wParam;
         message.lParam = lParam;
         hook->ProcessMsgEvent(message);
-        /*switch (msg) {
+        switch (msg) {
 
-        case WM_CLOSE:
-            PostQuitMessage(0);
-            break;
-        case WM_SIZE:
-            UINT width = LOWORD(lParam);
-            UINT height = HIWORD(lParam);
-            hook->ResizeEvent(width, height);
-            break;
+            case WM_CLOSE:
+                PostQuitMessage(0);
+                break;
+            case WM_SIZE:
+                UINT width = LOWORD(lParam);
+                UINT height = HIWORD(lParam);
+                hook->ResizeEvent(width, height);
+                break;
 
-        }*/
+        }
     }
     else {
         if (msg == WM_CLOSE)

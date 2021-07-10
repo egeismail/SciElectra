@@ -21,16 +21,19 @@
     <ClInclude Include="Source\Public\Window.hpp">
       <Filter>Source\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\WinMain.hpp">
-      <Filter>Source\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Public\elecmath.hpp">
-      <Filter>Source\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Public\Electra3D.hpp">
       <Filter>Source\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\ImDui.h">
+    <ClInclude Include="Source\Public\Model.hpp">
+      <Filter>Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Shader.hpp">
+      <Filter>Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\Camera.hpp">
+      <Filter>Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\stb_image.h">
       <Filter>Source\Public</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,8 +53,9 @@
     <ClCompile Include="Source\Private\WinMain.cpp">
       <Filter>Source\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Private\elecmath.cpp">
-      <Filter>Source\Private</Filter>
-    </ClCompile>
+    <ClCompile Include="Source\Public\Camera.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
