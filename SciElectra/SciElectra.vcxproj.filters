@@ -67,5 +67,8 @@
     <ClInclude Include="Source\Public\ImDui.h">
       <Filter>Source\Public Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\SciElectra3D\Source\Public\stb_image.h">
+      <Filter>Source\Public Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

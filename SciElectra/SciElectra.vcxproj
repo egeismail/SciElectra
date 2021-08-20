@@ -28,6 +28,7 @@
     <ClCompile Include="Source\Private\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\SciElectra3D\Source\Public\stb_image.h" />
     <ClInclude Include="Source\Public\elecmath.hpp" />
     <ClInclude Include="Source\Public\Electra2D.hpp" />
     <ClInclude Include="Source\Public\ImDui.h" />

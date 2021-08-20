@@ -2,12 +2,10 @@
 #include <windows.h>    // include the basic windows header file
 #include <GL\glew.h>
 #include <GL\wglew.h>
-#include "./../Public/stb_image.h"
 #include "./../Public/Window.hpp"
 #include "./../Public/SciElectra3D.hpp"
 #include <iostream>
 #include <filesystem>
-
 
 static SciElectra3D simulation;
 static Window root(L"SciElectra3D Alpha");

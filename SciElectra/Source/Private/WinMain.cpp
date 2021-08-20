@@ -10,15 +10,15 @@ static Window root(L"SciElectra Alpha");
 static ObjectCircle circle1, circle2;
 
 void scenario_collision_0(SciElectra2D& simulation) {
-    simulation.CameraPos = Vector2(0, 0);
+    simulation.CameraPos = Vector2(0, 2700);
     simulation.zoom = 4.17;
     simulation.electra.timeMultiplier = 0.1;
     simulation.electra.resolution = 0.001;
     simulation.ShowObjectManager = true;
     circle1.radius = 25;
-    circle2.radius = 25;
+    circle2.radius = 2500;
     Entity entity1(
-        Vector2(0, 200),
+        Vector2(0, 2700),
         Vector2(0, -20),
         25,//904982844642000.8839,
         &circle1,
@@ -27,7 +27,7 @@ void scenario_collision_0(SciElectra2D& simulation) {
         entity2(
             Vector2(-200, 200),
             Vector2(20, -20),
-            25,
+            904982844642000.8839,
             &circle2,
             DrawTypes::Circle
         );
@@ -105,7 +105,7 @@ int CALLBACK WinMain(HINSTANCE,HINSTANCE,LPSTR,INT){
     simulation.InitializeWindow(&root);
     RECT windowRect;
     GetWindowRect(root.hWnd, &windowRect);
-    scenario_collision_2(simulation);
+    scenario_collision_0(simulation);
     return simulation.Start();
 }
 
