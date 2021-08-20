@@ -4,6 +4,8 @@
 #include <bitset>
 #include <optional>
 
+using namespace std;
+
 class Keyboard
 {
 	friend class Window;

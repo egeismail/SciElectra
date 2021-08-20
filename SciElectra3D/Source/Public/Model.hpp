@@ -7,6 +7,9 @@
 #include <assimp/postprocess.h>
 #include <vector>
 #include "Shader.hpp"
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_STATIC
+#include "stb_image.h"
 
 using namespace std;
 
@@ -39,12 +42,22 @@ unsigned int TextureFromFile(const char* path, const string& directory, bool gam
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		stbi_image_free(data);
+		//#define STBI_FREE(p)              free(p)
+
+		/*
+		STBIDEF void stbi_image_free(void* retval_from_stbi_load)
+		{
+			STBI_FREE(retval_from_stbi_load);
+		}
+		*/
+
+		//stbi_image_free aslinda direkt olarak free fonksiyonuna denk geliyor.
+		free(data);
 	}
 	else
 	{
 		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
+		free(data);
 	}
 
 	return textureID;

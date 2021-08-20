@@ -28,7 +28,6 @@
     <ClCompile Include="Source\Private\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\SciElectra3D\Source\Public\stb_image.h" />
     <ClInclude Include="Source\Public\elecmath.hpp" />
     <ClInclude Include="Source\Public\Electra2D.hpp" />
     <ClInclude Include="Source\Public\ImDui.h" />
@@ -110,6 +109,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
