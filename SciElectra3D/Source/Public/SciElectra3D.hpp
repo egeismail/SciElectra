@@ -27,6 +27,7 @@ using namespace std::chrono;
 #define EARTH 5.972e+24f
 static const WCHAR fDebugText[] = L"Consolas";
 static const FLOAT fDebugSize   = 12;
+
 class SciElectra3D
 {
 public:
@@ -66,7 +67,7 @@ public:
 	int DrawObjects();
 #pragma endregion
 #pragma region Shaders
-	Shader mainShader = Shader("Shaders\\testFragment.hlsl", "Shaders\\testVertex.hlsl");
+	Shader mainShader = Shader("Shaders\\testFragment.hlsl", "Shaders\\testVertex.hlsl",false);
 #pragma endregion
 #pragma region Universe
 	Electra3D electra;

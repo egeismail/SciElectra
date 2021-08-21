@@ -19,6 +19,7 @@ class Shader
 {
 public:
 	Shader(const char* vsName, const char* fsName);
+	Shader(const char* vsName, const char* fsName,bool aftInt);
 	~Shader();
 	GLint compile();
 	void use();
@@ -34,11 +35,12 @@ public:
 	void setMat2(const std::string& name, const glm::mat2& mat) const;
 	void setMat3(const std::string& name, const glm::mat3& mat) const;
 	void setMat4(const std::string& name, const glm::mat4& mat) const;
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	GLuint program = glCreateProgram();
+	//void setMatrix4fv(const char* name, float& model);
+	GLuint vertexShader;
+	GLuint fragmentShader;
+	GLuint program;
+	bool vertexIsReady = false, fragmentIsReady = false, shaderInitialized = false, programIsReady = false,compiled = false;
 
-	void setMatrix4fv(const char* name, float& model);
 private:
 	char* vsSource = NULL;
 	char* fsSource = NULL;
@@ -46,14 +48,45 @@ private:
 
 inline Shader::Shader(const char* _vsName, const char* _fsName)
 {
+	vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	program = glCreateProgram();
+	programIsReady = true;
+	shaderInitialized = true;
 	std::ifstream vsf(_vsName, std::ios::binary);
-	size_t sos = getSize(vsf);
-	vsSource = new char[sos];
-	readFile(vsSource, sos, vsf);
+	if(vsf.good()){
+		size_t sos = getSize(vsf);
+		vsSource = new char[sos];
+		readFile(vsSource, sos, vsf);
+		vertexIsReady = true;
+	}
 	std::ifstream fsf(_fsName, std::ios::binary);
-	sos = getSize(fsf);
-	fsSource = new char[sos];
-	readFile(fsSource, sos, fsf);
+	if(fsf.good()){
+		size_t sos = getSize(fsf);
+		fsSource = new char[sos];
+		readFile(fsSource, sos, fsf);
+		fragmentIsReady = true;
+	}
+
+
+}
+
+inline Shader::Shader(const char* vsName, const char* fsName, bool aftInt)
+{
+	std::ifstream vsf(vsName, std::ios::binary);
+	if(vsf.good()){
+		size_t sos = getSize(vsf);
+		vsSource = new char[sos];
+		readFile(vsSource, sos, vsf);
+		vertexIsReady = true;
+	}
+	std::ifstream fsf(fsName, std::ios::binary);
+	if(fsf.good()){
+		size_t sos = getSize(fsf);
+		fsSource = new char[sos];
+		readFile(fsSource, sos, fsf);
+		fragmentIsReady = true;
+	}
 }
 
 inline Shader::~Shader()
@@ -62,7 +95,21 @@ inline Shader::~Shader()
 
 inline GLint Shader::compile()
 {
+	if (!shaderInitialized) {
+		vertexShader = glCreateShader(GL_VERTEX_SHADER);
+		fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+		programIsReady = glCreateProgram();
+		vertexIsReady = true;
+		fragmentIsReady = true;
+		programIsReady = true;
+	}
+	vertexIsReady = true;
+	fragmentIsReady = true;
+	programIsReady = true;
+	if (!vertexIsReady || !fragmentIsReady || !programIsReady)
+		return GL_FALSE;
 	GLint s1, s2, maxLen;
+	
 	glShaderSource(vertexShader, 1, &vsSource, NULL);
 	glCompileShader(vertexShader);
 	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &s1);
@@ -98,6 +145,7 @@ inline GLint Shader::compile()
 	glAttachShader(program, vertexShader);
 	glAttachShader(program, fragmentShader);
 	glLinkProgram(program);
+	compiled = true;
 	return GL_TRUE;
 
 }

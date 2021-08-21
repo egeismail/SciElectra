@@ -86,8 +86,12 @@ HRESULT SciElectra3D::InitializeWindow(Window* root)
 }
 void SciElectra3D::InitGLObjects() {
     //Initialize extensions
-    glewInit();
+    GLenum err = glewInit();
 
+    if (GLEW_OK != err)
+    {
+        std::cout << "Error: " << glewGetErrorString(err) << std::endl;
+    }
     //Basic global variables
     glClearColor(0.6f, 0.9f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
@@ -203,15 +207,20 @@ int SciElectra3D::RegisterWindows() {
 }
 
 BOOL SciElectra3D::Render() {
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(31 / 255.0f, 40 / 255.0f, 45/255.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    for (Entity &ent : electra.entities)
-    {
-        mainShader.setMat4("projection", camera.projectionMatrix);
-        mainShader.setMat4("view", camera.viewMatrix);
-        mainShader.setMat4("model", ent.model_m);
-        ent.model->Draw(mainShader);
+    if (mainShader.compiled) {
+        mainShader.use();
+        for (Entity &ent : electra.entities)
+        {
+        
+            mainShader.setMat4("projection", camera.projectionMatrix);
+            mainShader.setMat4("view", camera.viewMatrix);
+            mainShader.setMat4("model", ent.model_m);
+            ent.model->Draw(mainShader);
+        }
     }
+
     SwapBuffers(hDC);
     return S_OK;
 

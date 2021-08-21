@@ -1,4 +1,9 @@
 #pragma once
+#ifndef MODEL_H
+
+#endif // !MODEL_H
+#define MODEL_H
+
 #include <GL\glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -13,7 +18,7 @@
 
 using namespace std;
 
-unsigned int TextureFromFile(const char* path, const string& directory, bool gamma)
+static unsigned int TextureFromFile(const char* path, const string& directory, bool gamma)
 {
 	string filename = string(path);
 	filename = directory + '/' + filename;
@@ -228,34 +233,44 @@ inline Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	vector<Texture> textures;
 	for (size_t i = 0; i < mesh->mNumVertices; i++)
 	{
-		Vertex vtx;
-		vtx.Position= glm::vec3(
-			mesh->mVertices[i].x,
-			mesh->mVertices[i].y,
-			mesh->mVertices[i].z);
-		if (mesh->HasNormals()) {
-			vtx.Normal = glm::vec3(
-				mesh->mNormals[i].x,
-				mesh->mNormals[i].y,
-				mesh->mNormals[i].z);
+		Vertex vertex;
+		glm::vec3 vector;
+		// positions
+		vector.x = mesh->mVertices[i].x;
+		vector.y = mesh->mVertices[i].y;
+		vector.z = mesh->mVertices[i].z;
+		vertex.Position = vector;
+		// normals
+		if (mesh->HasNormals())
+		{
+			vector.x = mesh->mNormals[i].x;
+			vector.y = mesh->mNormals[i].y;
+			vector.z = mesh->mNormals[i].z;
+			vertex.Normal = vector;
 		}
-		if (mesh->mTextureCoords[0]) {
-			vtx.TexCoords = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-			vtx.Tangent = glm::vec3(
-				mesh->mTangents[i].x,
-				mesh->mTangents[i].y,
-				mesh->mTangents[i].z
-				);
-			
-			vtx.Bitangent = glm::vec3(
-				mesh->mBitangents[i].x,
-				mesh->mBitangents[i].y,
-				mesh->mBitangents[i].z
-			);
+		// texture coordinates
+		if (mesh->mTextureCoords[0]) 
+		{
+			glm::vec2 vec;
+			// coords
+			vec.x = mesh->mTextureCoords[0][i].x;
+			vec.y = mesh->mTextureCoords[0][i].y;
+			vertex.TexCoords = vec;
+			// tangent
+			vector.x = mesh->mTangents[i].x;
+			vector.y = mesh->mTangents[i].y;
+			vector.z = mesh->mTangents[i].z;
+			vertex.Tangent = vector;
+			// bitangent
+			vector.x = mesh->mBitangents[i].x;
+			vector.y = mesh->mBitangents[i].y;
+			vector.z = mesh->mBitangents[i].z;
+			vertex.Bitangent = vector;
 		}
 		else
-			vtx.TexCoords = glm::vec2(0.0f, 0.0f);
-		vertices.push_back(vtx);
+			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+
+		vertices.push_back(vertex);
 	}
 
 	for (size_t i = 0; i < mesh->mNumFaces; i++)
