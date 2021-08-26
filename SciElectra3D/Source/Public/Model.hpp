@@ -109,6 +109,7 @@ inline void Mesh::Draw(Shader &shader)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		string number;
+		cout << "name :" << textures[i].type << std::endl;
 		string name = textures[i].type;
 		if (name == "texture_diffuse")
 			number = std::to_string(diffuseNr++);
@@ -170,7 +171,8 @@ inline void Mesh::setupMesh()
 class Model
 {
 public:
-	Model(const char *path);
+	Model(const char* path);
+	Model();
 	~Model();
 	void Draw(Shader& shader);
 	vector<Texture> textures_loaded;	
@@ -187,6 +189,9 @@ private:
 inline Model::Model(const char *path)
 {
 	loadModel(path);
+}
+inline Model::Model()
+{
 }
 
 inline Model::~Model()
@@ -207,7 +212,9 @@ inline void Model::loadModel(string path)
 		cout << "ERROR::ASSIMP::" << imp.GetErrorString() << endl;
 		return;
 	}
-	directory = path.substr(0, path.find_last_of('/'));
+	directory = path.substr(0, path.find_last_of('\\'));
+	std::cout << "Model path : " << path << std::endl;
+	std::cout << "Model directory : "<< directory << std::endl;
 	processNode(scene->mRootNode, scene);
 
 }
@@ -256,6 +263,10 @@ inline Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			vec.x = mesh->mTextureCoords[0][i].x;
 			vec.y = mesh->mTextureCoords[0][i].y;
 			vertex.TexCoords = vec;
+		}
+		else
+			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+		if (mesh->HasTangentsAndBitangents()) {
 			// tangent
 			vector.x = mesh->mTangents[i].x;
 			vector.y = mesh->mTangents[i].y;
@@ -267,9 +278,10 @@ inline Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 			vector.z = mesh->mBitangents[i].z;
 			vertex.Bitangent = vector;
 		}
-		else
-			vertex.TexCoords = glm::vec2(0.0f, 0.0f);
-
+		else {
+			vertex.Tangent = glm::vec3(0.0f, 0.0f, 0.0f);
+			vertex.Bitangent= glm::vec3(0.0f, 0.0f, 0.0f);
+		}
 		vertices.push_back(vertex);
 	}
 
@@ -305,10 +317,13 @@ inline vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		bool skip = false;
+		cout << "texture => " << i << " =>";
 		for (size_t j = 0; j < textures_loaded.size(); j++)
 		{
 			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
 				textures.push_back(textures_loaded[j]);
+				cout << "aldready loaded texture (" << i <<  "): " << str.C_Str() << "|" << typeName << std::endl;
+
 				skip = true;
 				break;
 			}
@@ -318,6 +333,8 @@ inline vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 			texture.id = TextureFromFile(str.C_Str(), directory,false);
 			texture.type = typeName;
 			texture.path = str.C_Str();
+			cout << "texture : loaded texture (" << i << "): " << str.C_Str() << "|" << typeName << std::endl;
+
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);
 		}

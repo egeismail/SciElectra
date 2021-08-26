@@ -217,7 +217,7 @@ BOOL SciElectra3D::Render() {
             mainShader.setMat4("projection", camera.projectionMatrix);
             mainShader.setMat4("view", camera.viewMatrix);
             mainShader.setMat4("model", ent.model_m);
-            ent.model->Draw(mainShader);
+            ent.model.Draw(mainShader);
         }
     }
 

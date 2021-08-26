@@ -24,14 +24,14 @@ struct Entity {
 	glm::vec3 rotation;
 	glm::mat4 model_m = glm::mat4(1.0f);
 	float mass = 1;
-	Model* model;
+	Model model;
 	bool UIVisible = false;
-	Entity(glm::vec3 pos_,glm::vec3 rotation_, glm::vec3 velocity_,float mass_,Model& model_) {
+	Entity(glm::vec3 pos_,glm::vec3 rotation_, glm::vec3 velocity_,float mass_,Model model_) {
 		pos = pos_;
 		velocity = velocity_;
 		rotation = rotation_;
 		mass = mass_;
-		model = &model_;
+		model = model_;
 		updateModelMatrix();
 
 	}
