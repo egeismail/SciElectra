@@ -1,23 +1,33 @@
 #pragma once
+
+#define WINDOW_WIDTH  800
+#define WINDOW_HEIGHT 600
+
+
+
 #include <sstream>
 #include <chrono>
 #include <list>
 #include <vector>
 #include <string>
-#include <GL\glew.h>
-#include <GL\wglew.h>
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+#include <glad/glad.h> 
+#include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include "Electra3D.hpp"
+#include "Camera.hpp"
+#include "Shader.hpp"
 
 using namespace std;
 using namespace std::chrono;
-#include "Window.hpp"
-#include "Camera.hpp"
-#include "Electra3D.hpp"
 
 #define SE2D_INITIALIZE WM_USER+1
 #define DEBUG_TEXT_LENGTH 80
@@ -34,14 +44,12 @@ public:
 #pragma region Build-Up
     SciElectra3D();
 	~SciElectra3D();
-    HRESULT InitializeWindow(Window *root);
+    HRESULT InitializeWindow();
 	BOOL Start();
 	BOOL isDone = false;
 #pragma endregion
 #pragma region Event
-	BOOL ProcessMsgEvent(MSG msg);
-	void ResizeEvent(UINT width, UINT height);
-	void ExecuteInteractions();
+
 #pragma endregion
 #pragma region Debug
 	void SetDebugText(const WCHAR* text, unsigned short index);
@@ -51,14 +59,12 @@ public:
 #pragma endregion
 #pragma region Window-OpenGL
 	HWND hWnd;
-	HGLRC hRC;
-	void InitGLObjects();
-	static LRESULT ElectraListener(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-	Window* root;
-	HDC hDC;
+	GLFWwindow* window;
+	int WIDTH, HEIGHT;
 	GLint occlusionCullingSupported;
 	unsigned int SyncTick = 1;
 	int RegisterWindows();
+
 
 #pragma endregion
 #pragma region Render
@@ -79,15 +85,6 @@ public:
 	float zoom = 1;
 	float zoomLinearer = 0;
 	size_t renderingObjects;
-	/*POINT WorldToScreen(Vector3 Pos);
-	POINT WorldToScreen_bc(Vector3 Pos, Vector3 Camera);
-	long WorldToScreenX(float x);
-	long WorldToScreenY(float y);
-	Vector3 ScreenToWorld(POINT Pos);
-	Vector3 ScreenToWorld_bc(POINT Pos, Vector3 Camera);
-	Vector3 TransformWTS(POINT Pos);
-	float ScreenToWorldX(long x);
-	float ScreenToWorldY(long y);*/
 	int WindowRectUpdate();
 	bool showGrids = true;
 	bool showVectors = true;

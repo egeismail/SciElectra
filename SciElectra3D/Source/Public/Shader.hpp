@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <glad/glad.h> 
+
 
 inline size_t getSize(std::ifstream& file) {
 	file.seekg(0, std::ios::end);

@@ -21,18 +21,15 @@
   <ItemGroup>
     <ClInclude Include="Source\Public\Camera.hpp" />
     <ClInclude Include="Source\Public\Electra3D.hpp" />
-    <ClInclude Include="Source\Public\Keyboard.hpp" />
     <ClInclude Include="Source\Public\Model.hpp" />
     <ClInclude Include="Source\Public\SciElectra3D.hpp" />
     <ClInclude Include="Source\Public\Shader.hpp" />
     <ClInclude Include="Source\Public\stb_image.h" />
-    <ClInclude Include="Source\Public\Window.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Private\Electra3D.cpp" />
-    <ClCompile Include="Source\Private\Keyboard.cpp" />
+    <ClCompile Include="Source\Private\glad.c" />
     <ClCompile Include="Source\Private\SciElectra3D.cpp" />
-    <ClCompile Include="Source\Private\Window.cpp" />
     <ClCompile Include="Source\Private\WinMain.cpp" />
     <ClCompile Include="Source\Public\Camera.cpp" />
   </ItemGroup>
@@ -105,7 +102,7 @@
     <IntDir>$(SolutionDir)\$(ProjectName)\Intermediate\$(Configuration)\</IntDir>
     <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\Users\Root\Desktop\glew-2.1.0\glew-2.1.0\include;$(IncludePath)</IncludePath>
     <ReferencePath>$(VC_ReferencesPath_x64);$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Users\Root\Desktop\glew-2.1.0\glew-2.1.0\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -144,18 +141,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Programs\libs\assimp-3.3.1\include;..\glew-2.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Programs\libs\assimp-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>OpenGL32.lib;glew32s.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glfw3_mt.lib;opengl32.lib;assimp-vc140-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>D:\Programs\libs\assimp-3.3.1\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>

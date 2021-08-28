@@ -12,13 +12,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Public\Keyboard.hpp">
-      <Filter>Source\Public</Filter>
-    </ClInclude>
     <ClInclude Include="Source\Public\SciElectra3D.hpp">
-      <Filter>Source\Public</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Public\Window.hpp">
       <Filter>Source\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\Public\Electra3D.hpp">
@@ -41,19 +35,14 @@
     <ClCompile Include="Source\Private\Electra3D.cpp">
       <Filter>Source\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Private\Keyboard.cpp">
-      <Filter>Source\Private</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Private\SciElectra3D.cpp">
-      <Filter>Source\Private</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Private\Window.cpp">
       <Filter>Source\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\Private\WinMain.cpp">
       <Filter>Source\Private</Filter>
     </ClCompile>
     <ClCompile Include="Source\Public\Camera.cpp" />
+    <ClCompile Include="Source\Private\glad.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
