@@ -18,6 +18,8 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
+
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -58,9 +60,10 @@ public:
 	size_t debugTextIterator;
 #pragma endregion
 #pragma region Window-OpenGL
+	void processInput(GLFWwindow* window);
 	HWND hWnd;
 	GLFWwindow* window;
-	int WIDTH, HEIGHT;
+	int WIDTH = WINDOW_WIDTH, HEIGHT = WINDOW_HEIGHT;
 	GLint occlusionCullingSupported;
 	unsigned int SyncTick = 1;
 	int RegisterWindows();

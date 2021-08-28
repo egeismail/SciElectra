@@ -5,43 +5,39 @@
 //Window* root
 #pragma region Callbacks
 
+static SciElectra3D* hselectra;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    void* pp = glfwGetWindowUserPointer(window);
-    if (pp != NULL) {
-        SciElectra3D* selectra = static_cast<SciElectra3D*>(glfwGetWindowUserPointer(window));
-        glViewport(0, 0, width, height);
-        selectra->WIDTH = width;
-        selectra->HEIGHT = height;
-
-        selectra->camera.setSize(width, height);
+    if (hselectra == NULL) {
+        void* pp = glfwGetWindowUserPointer(window);
+        hselectra = static_cast<SciElectra3D*>(glfwGetWindowUserPointer(window));
+        return;
     }
+    
+    glViewport(0, 0, width, height);
+    hselectra->WIDTH = width;
+    hselectra->HEIGHT = height;
+    hselectra->camera.setSize(width, height);
+
 }
 
-void processInput(GLFWwindow* window)
-{
-    void* pp = glfwGetWindowUserPointer(window);
-    if (pp != NULL) {
-        SciElectra3D* selectra = static_cast<SciElectra3D*>(glfwGetWindowUserPointer(window));
-
-
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-            glfwSetWindowShouldClose(window, true);
-        if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
-            selectra->camera.pos = glm::vec3(0, 0, 0);
-        selectra->camera.processInputs(window, selectra->electra.tickTimef);
-    }
-
-}
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    void* pp = glfwGetWindowUserPointer(window);
-    if (pp != NULL) {
-        SciElectra3D* selectra = static_cast<SciElectra3D*>(glfwGetWindowUserPointer(window));
-        selectra->camera.processMouseInput(window, xpos, ypos);
+    if (hselectra == NULL){
+        void* pp = glfwGetWindowUserPointer(window);
+        hselectra = static_cast<SciElectra3D*>(glfwGetWindowUserPointer(window));
+        return;
     }
+    hselectra->camera.processMouseInput(window, xpos, ypos);
+    
 
+}
+
+void error_callback(int error, const char* msg) {
+    std::string s;
+    s = " [" + std::to_string(error) + "] " + msg + '\n';
+    std::cerr << s << std::endl;
 }
 
 #pragma endregion
@@ -60,13 +56,16 @@ SciElectra3D::~SciElectra3D()
 HRESULT SciElectra3D::InitializeWindow()
 {
     BOOL lr = true;
-
-    glfwInit();
+    glfwSetErrorCallback(error_callback);
+    if (glfwInit() == GLFW_FALSE) {
+        cout << "Failed to glfwInit()" << std::endl;
+        return S_FALSE;
+    }
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
     window = glfwCreateWindow(WIDTH, HEIGHT, "SciElectra", NULL, NULL);
-    glfwSetWindowUserPointer(window, this);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -76,6 +75,7 @@ HRESULT SciElectra3D::InitializeWindow()
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -86,7 +86,8 @@ HRESULT SciElectra3D::InitializeWindow()
     hWnd = glfwGetWin32Window(window);
     SetForegroundWindow(hWnd);
     SetFocus(hWnd);
-    
+    glfwSetWindowUserPointer(window, this);
+
 
     glViewport(0, 0, WIDTH, HEIGHT);
     glEnable(GL_DEPTH_TEST);
@@ -125,12 +126,23 @@ int SciElectra3D::ShowVectors()
     
     return 0;
 }
+void SciElectra3D::processInput(GLFWwindow* window)
+{
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
+        camera.pos = glm::vec3(0, 0, 0);
+    camera.processInputs(window, eT);
+
+}
 BOOL SciElectra3D::Start()
 {
     simulationStartTime = steady_clock::now();
     steady_clock::time_point lastRender = steady_clock::now();
-    while (!this->isDone) {
+    while (!this->isDone && !glfwWindowShouldClose(window)) {
 		sTime = steady_clock::now();
+        processInput(window);
+        camera.updateCamera();
 
         this->Render();
 
@@ -163,7 +175,6 @@ int SciElectra3D::RegisterWindows() {
 }
 
 BOOL SciElectra3D::Render() {
-    camera.updateCamera();
     glClearColor(31 / 255.0f, 40 / 255.0f, 45/255.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (mainShader.compiled) {
@@ -171,13 +182,11 @@ BOOL SciElectra3D::Render() {
         for (Entity &ent : electra.entities)
         {
         
-            mainShader.setMat4("projection", camera.projection);
-            mainShader.setMat4("view", camera.view);
+            camera.prepareProjection(mainShader);
             mainShader.setMat4("model", ent.model_m);
             ent.model.Draw(mainShader);
         }
     }
-
     return S_OK;
 
 }

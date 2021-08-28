@@ -31,10 +31,10 @@ static SciElectra3D simulation;
 
 void scenario_test3d(SciElectra3D& simulation,RECT windowRect) {
     
-    simulation.camera.pos = glm::vec3(5.0f, 0.0f, 0.0f);
+    simulation.camera.pos = glm::vec3(24.0f, 0.0f, 0.0f);
 
-    simulation.camera.view = glm::lookAt(glm::vec3(5.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), simulation.camera.cameraUp);
-    char md[] = "TestModels\\untitled.obj";
+    simulation.camera.updateCamera();
+    char md[] = "TestModels\\Tree.obj";
     char fullFilename[MAX_PATH];
     GetFullPathNameA(md, MAX_PATH, fullFilename, nullptr);
     cout << fullFilename << std::endl;
@@ -66,7 +66,6 @@ void scenario_test3d(SciElectra3D& simulation,RECT windowRect) {
 int CALLBACK WinMain(HINSTANCE,HINSTANCE,LPSTR,INT){
     attach_console();
     simulation.InitializeWindow();
-    
     RECT windowRect;
     GetWindowRect(simulation.hWnd, &windowRect);
     scenario_test3d(simulation, windowRect);

@@ -104,7 +104,7 @@ inline void Mesh::Draw(Shader &shader)
 	{
 		glActiveTexture(GL_TEXTURE0 + i);
 		string number;
-		cout << "name :" << textures[i].type << std::endl;
+		//cout << "name :" << textures[i].type << std::endl;
 		string name = textures[i].type;
 		if (name == "texture_diffuse")
 			number = std::to_string(diffuseNr++);
@@ -208,8 +208,8 @@ inline void Model::loadModel(string path)
 		return;
 	}
 	directory = path.substr(0, path.find_last_of('\\'));
-	std::cout << "Model path : " << path << std::endl;
-	std::cout << "Model directory : "<< directory << std::endl;
+	//std::cout << "Model path : " << path << std::endl;
+	//std::cout << "Model directory : "<< directory << std::endl;
 	processNode(scene->mRootNode, scene);
 
 }
@@ -312,12 +312,12 @@ inline vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 		aiString str;
 		mat->GetTexture(type, i, &str);
 		bool skip = false;
-		cout << "texture => " << i << " =>";
+		//cout << "texture => " << i << " =>";
 		for (size_t j = 0; j < textures_loaded.size(); j++)
 		{
 			if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0) {
 				textures.push_back(textures_loaded[j]);
-				cout << "aldready loaded texture (" << i <<  "): " << str.C_Str() << "|" << typeName << std::endl;
+				//cout << "aldready loaded texture (" << i <<  "): " << str.C_Str() << "|" << typeName << std::endl;
 
 				skip = true;
 				break;
@@ -328,7 +328,7 @@ inline vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureTyp
 			texture.id = TextureFromFile(str.C_Str(), directory,false);
 			texture.type = typeName;
 			texture.path = str.C_Str();
-			cout << "texture : loaded texture (" << i << "): " << str.C_Str() << "|" << typeName << std::endl;
+			//cout << "texture : loaded texture (" << i << "): " << str.C_Str() << "|" << typeName << std::endl;
 
 			textures.push_back(texture);
 			textures_loaded.push_back(texture);

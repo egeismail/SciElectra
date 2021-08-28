@@ -1,9 +1,11 @@
 #pragma once
+#include <glm\glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 class Camera
 {
 public:
 	Camera();
-	Camera(glm::vec3 pos_, glm::vec3 rotation, float fov, int w, int h, float n, float f);
+	Camera(glm::vec3 pos_, float fov, int w, int h, float n, float f);
 	~Camera();
 	void updateCamera();
 	void prepareProjection(Shader& shader);
@@ -45,10 +47,9 @@ inline Camera::Camera()
 {
 }
 
-inline Camera::Camera(glm::vec3 pos_, glm::vec3 rotation, float fov, int w, int h, float n, float f)
+inline Camera::Camera(glm::vec3 pos_, float fov, int w, int h, float n, float f)
 {
 	pos = pos_;
-	rotation = rotation;
 	FOV = glm::radians(fov);
 	width = w;
 	height = h;
@@ -63,13 +64,11 @@ inline Camera::~Camera()
 
 inline void Camera::updateCamera()
 {
-	view = glm::mat4(1.0f);
-	projection = glm::mat4(1.0f);
+	rotation = glm::clamp(rotation, -3.1415926535f, 3.1415926535f);
 	view = glm::lookAt(pos, pos + cameraFront, cameraUp);
 	projection = glm::perspective(FOV, aspectRatio, Near, Far);
 	//std::cout << "Pos" << " : (" << pos.x << "," << pos.y << "," << pos.z << ") " << "Pitch:" << pitch<<" Yaw:" << yaw <<  "        \r";
-
-	//std::cout << "FOV : " << glm::degrees(FOV) << " AspectRatio : " << aspectRatio << "Near : " << near << " Far : " << far << std::endl;
+	//std::cout << "FOV : " << glm::degrees(FOV) << " AspectRatio : " << aspectRatio << "Near : " << Near << " Far : " << Far << std::endl;
 
 }
 
@@ -84,6 +83,8 @@ inline void Camera::setSize(float w, float h)
 	width = w;
 	height = h;
 	aspectRatio = (float)w / (float)h;
+	projection = glm::perspective(FOV, aspectRatio, Near, Far);
+
 }
 
 inline void Camera::getSize(float& w, float& h)
@@ -95,6 +96,8 @@ inline void Camera::getSize(float& w, float& h)
 inline void Camera::setFOV(float fov)
 {
 	FOV = fov;
+	projection = glm::perspective(FOV, aspectRatio, Near, Far);
+
 }
 
 inline float Camera::getFOV()
@@ -105,6 +108,8 @@ inline float Camera::getFOV()
 inline void Camera::setNear(float near_)
 {
 	Near = near_;
+	projection = glm::perspective(FOV, aspectRatio, Near, Far);
+
 }
 
 inline float Camera::getNear()
@@ -115,6 +120,7 @@ inline float Camera::getNear()
 inline void Camera::setFar(float far_)
 {
 	Far = far_;
+	projection = glm::perspective(FOV, aspectRatio, Near, Far);
 }
 
 inline float Camera::getFar()
@@ -138,6 +144,7 @@ inline void Camera::processInputs(GLFWwindow* window, float deltaTime)
 		pos += cameraSpeed * deltaTime * cameraUp;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		pos -= cameraSpeed * deltaTime * cameraUp;
+	//cout << pos.x << "," << pos.y << "," << pos.z << std::endl;
 }
 
 inline void Camera::processMouseInput(GLFWwindow* window, double xpos, double ypos) {
@@ -170,6 +177,7 @@ inline void Camera::processMouseInput(GLFWwindow* window, double xpos, double yp
 	direction.y = sin(glm::radians(pitch));
 	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 	cameraFront = glm::normalize(direction);
+
 
 }
 
