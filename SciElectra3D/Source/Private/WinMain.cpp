@@ -34,7 +34,7 @@ void scenario_test3d(SciElectra3D& simulation,RECT windowRect) {
     simulation.camera.pos = glm::vec3(24.0f, 0.0f, 0.0f);
 
     simulation.camera.updateCamera();
-    char md[] = "TestModels\\Tree.obj";
+    char md[] = "TestModels\\backpack.obj";
     char fullFilename[MAX_PATH];
     GetFullPathNameA(md, MAX_PATH, fullFilename, nullptr);
     cout << fullFilename << std::endl;

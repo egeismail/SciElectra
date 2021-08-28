@@ -28,6 +28,10 @@
 #include "Camera.hpp"
 #include "Shader.hpp"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 using namespace std;
 using namespace std::chrono;
 
@@ -67,11 +71,11 @@ public:
 	GLint occlusionCullingSupported;
 	unsigned int SyncTick = 1;
 	int RegisterWindows();
-
-
+	float highDPIscaleFactor = 1.0;
 #pragma endregion
 #pragma region Render
 	BOOL Render();
+	void DrawGuis();
 	int DrawDebugText();
 	int DrawObjects();
 #pragma endregion
@@ -110,13 +114,7 @@ public:
 		0xFF00FF,
 		0x800080
 	};
-	bool controlDown;
-	bool shiftDown;
-	bool mouseLeftDown;
-	bool mouseMiddleDown;
-	int  deltaMouseWheel;
-	POINT mousePos;
-	POINT deltaMousePos;
+	bool glfwMouseEnabled = false;
 	bool ShowDebugWindow = true,
 		ShowSimulationSettings = false,
 		ShowGraphicalSettings = false,

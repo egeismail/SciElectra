@@ -88,7 +88,14 @@ HRESULT SciElectra3D::InitializeWindow()
     SetFocus(hWnd);
     glfwSetWindowUserPointer(window, this);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
 
+    io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 18.0f * highDPIscaleFactor, NULL, NULL);
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
     glViewport(0, 0, WIDTH, HEIGHT);
     glEnable(GL_DEPTH_TEST);
 
@@ -109,6 +116,192 @@ float cubicBezier(float y1, float y2, float normalized) {
 int SciElectra3D::WindowRectUpdate()
 {
     return 0;
+}
+void SciElectra3D::DrawGuis()
+{
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
+    if (ShowDebugWindow) {
+        ImGui::Begin("SciElectra Debug", &ShowDebugWindow);
+        std::stringstream sst;
+        ImGui::Text("O-Simulation");
+        sst << "FPS : " << fps;
+        ImGui::Text(sst.str().c_str());
+#ifdef SE2D_DEBUG
+        sst.str(std::string()); // Frametime
+        sst << "Frametime : " << eT * 1000.0f << " ms; :" << duration_cast<microseconds>(frameTime).count() << "us";
+        ImGui::Text(sst.str().c_str());
+
+        sst.str(std::string()); // Frametime Sim
+        sst << "Frametime Sim : " << duration_cast<microseconds>(electra.tickTime).count() << "ms";
+        ImGui::Text(sst.str().c_str());
+
+        sst.str(std::string()); // Elapsed Time
+        sst << "Elapsed Time : " << simElapsedTime << " s";
+        ImGui::Text(sst.str().c_str());
+
+        sst.str(std::string()); // Elapsed Time
+        sst << "Elapsed Time Sim : " << (electra.elapsedTimeUS) / 10e+6 << " s";
+        ImGui::Text(sst.str().c_str());
+
+        sst.str(std::string()); // Elapsed Time
+        sst << "Tick per render: " << (SyncTick) << " t/r";
+        ImGui::Text(sst.str().c_str());
+
+        sst.str(std::string()); // Render And Simulation fTime
+        sst << "R|S : " << eT << "," << electra.tickTimef;
+        ImGui::Text(sst.str().c_str());
+
+        sst.str(std::string()); // Renderables
+        sst << "Renderables : " << renderingObjects;
+        ImGui::Text(sst.str().c_str());
+        int w, h;
+        glfwGetWindowSize(window, &w, &h);
+        sst.str(std::string()); // Screen Size
+        sst << "Screen Size : " << "(" << w << "," << h << ")";
+        ImGui::Text(sst.str().c_str());
+
+
+        //sst.str(std::string()); // Window World Rect
+        //sst << "World Rect: " << "(" << windowWorldRect.left << "," << windowWorldRect.top << "," << windowWorldRect.right << "," << windowWorldRect.bottom << ")";
+        //ImGui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //Mouse Pos 
+        //sst << "Mouse Pos : " << mousePos.x << "," << mousePos.y;
+        //ImDui::Text(sst.str().c_str());
+
+        /*ctor2 worldPos = ScreenToWorld(mousePos);
+        float wPx = ScreenToWorldX(mousePos.x), wPy = ScreenToWorldY(mousePos.y);
+        POINT screenPos = WorldToScreen(worldPos);
+        float sPx = WorldToScreenX(wPx), sPy = WorldToScreenY(wPy);*/
+
+        //sst.str(std::string()); //Mouse World Pos  Not Struct 
+        //sst << "Mouse STW_NS : " << wPx << "," << wPy;
+        //ImDui::Text(sst.str().c_str());
+        //sst.str(std::string()); //Mouse World Pos 
+        //sst << "Mouse STW    : " << worldPos.x << "," << worldPos.y;
+        //ImDui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //Mouse WTS Pos 
+        //sst << "Mouse WTS    : " << screenPos.x << "," << screenPos.y;
+        //ImDui::Text(sst.str().c_str());
+        //sst.str(std::string()); //Mouse WTS Pos Not Struct 
+        //sst << "Mouse WTS NS : " << sPx << "," << sPy;
+        //ImDui::Text(sst.str().c_str());
+
+
+
+        //sst.str(std::string()); //Delta Pos Mouse
+        //sst << "Mouse Delta Pos : " << deltaMousePos.x << "," << deltaMousePos.y;
+        //ImDui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //Delta Pos Mouse
+        //sst << "Mouse DPS : " << dbs_distance.x << "," << dbs_distance.y;
+        //ImDui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //Mouse Left Click
+        //sst << "ML: " << mouseLeftDown;
+        //ImDui::SameLine(); ImDui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //MWheel
+        //sst << "MWheel: " << deltaMouseWheel;
+        //ImDui::Text(sst.str().c_str());
+        //ImDui::SameLine();
+        //sst.str(std::string()); //Control Press
+        //sst << "CTRL: " << controlDown;
+        //ImDui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //Shift Press
+        //sst << "SHIFT: " << shiftDown;
+        //ImDui::Text(sst.str().c_str());
+
+        ImGui::Text("I-Simulation");
+        sst.str(std::string()); //Camera Pos
+        sst << "Camera Pos: " << "(" << camera.pos.x << "," << camera.pos.y << "," << camera.pos.z << ")";
+        ImGui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //Hover Object
+        //sst << "Hover Object : " << hoverObject;
+        //ImDui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //Selected Object
+        //sst << "SelectedObject : " << SelectedObject;
+        //ImDui::Text(sst.str().c_str());
+
+        //sst.str(std::string()); //ZOOM TL
+        //sst << "DT : " << windowWorldRect.right - windowWorldRect.left;
+        //ImDui::Text(sst.str().c_str());
+        //ImDui::SameLine();
+        //sst.str(std::string()); //ZOOM TL
+        //sst << "ZR : " << 1 / zoom;
+        //ImDui::Text(sst.str().c_str());
+        //sst.str(std::string()); //ZOOM TL
+        //sst << "INTP : " << intap;
+        //ImDui::Text(sst.str().c_str());
+
+#endif
+        ImGui::PushItemWidth(50);
+        if (ImGui::Button("Reset")) {
+            zoom = 1;
+        }
+        ImGui::SameLine();
+        ImGui::PushItemWidth(120);
+        ImGui::SliderFloat("Zoom", &zoom, 0.001, 10, "%.6f");
+        if (ImGui::Button("Simulation Settings"))
+            ShowSimulationSettings = !ShowSimulationSettings;
+        if (ImGui::Button("Graphical  Settings"))
+            ShowGraphicalSettings = !ShowGraphicalSettings;
+        if (ImGui::Button("UI Style Manager"))
+            ShowStyleEditor = !ShowStyleEditor;
+        if (ImGui::Button("Object  Manager"))
+            ShowObjectManager = !ShowObjectManager;
+
+        ImGui::End();
+    }
+    static bool MultiEffect = this->electra.Rules & Rules::MultiEffect ? true : false,
+        NewtonianGravity = this->electra.Rules & Rules::NewtonianGravity ? true : false,
+        Collision = this->electra.Rules & Rules::Collision ? true : false,
+        CollisionWindow = this->electra.Rules & Rules::CollisionWindow ? true : false;
+    if (ShowSimulationSettings) {
+        if (ImGui::Begin("Simulation Settings", &ShowSimulationSettings)) {
+            ImGui::PushItemWidth(150);
+            if (ImGui::Button("Reset")) {
+                electra.timeMultiplier = 1.0f;
+            }
+            ImGui::SameLine();
+            ImGui::PushItemWidth(200);
+
+            ImGui::SliderFloat("Time Multiplier", &electra.timeMultiplier, 0.001, 2, "%.3f");
+            //ImGui::SliderFloat("Mouse Drag Strength", &mouseDragStrength, 0.1, 10, "%.3f");
+            ImGui::Checkbox("Multi Effect", &MultiEffect); ImGui::SameLine();
+            ImGui::Checkbox("Newtonian Gravity", &NewtonianGravity);
+            ImGui::Checkbox("Collision", &Collision); ImGui::SameLine();
+            ImGui::Checkbox("Window Collision", &CollisionWindow);
+            if (MultiEffect != this->electra.Rules & Rules::MultiEffect > 0)
+                this->electra.Rules = MultiEffect ? this->electra.Rules | Rules::MultiEffect : this->electra.Rules & ~Rules::MultiEffect;
+            if (NewtonianGravity != this->electra.Rules & Rules::NewtonianGravity > 0)
+                this->electra.Rules = NewtonianGravity ? this->electra.Rules | Rules::NewtonianGravity : this->electra.Rules & ~Rules::NewtonianGravity;
+            if (Collision != this->electra.Rules & Rules::Collision > 0)
+                this->electra.Rules = Collision ? this->electra.Rules | Rules::Collision : this->electra.Rules & ~Rules::Collision;
+            if (CollisionWindow != this->electra.Rules & Rules::CollisionWindow > 0)
+                this->electra.Rules = CollisionWindow ? this->electra.Rules | Rules::CollisionWindow : this->electra.Rules & ~Rules::CollisionWindow;
+            ImGui::End();
+        };
+        
+    }
+    if (ShowGraphicalSettings) {
+        ImGui::Begin("Graphical Settings", &ShowGraphicalSettings);
+        ImGui::Checkbox("Show Grids", &showGrids);
+        ImGui::Checkbox("Show Vectors", &showVectors);
+        ImGui::Checkbox("Show Angles", &showAngles);
+
+        ImGui::End();
+    }
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 float SeqA051109(unsigned int n) {
     return ((n % 3) * (n % 3) + 1) * pow(10, int(n / 3));
@@ -132,6 +325,11 @@ void SciElectra3D::processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
         camera.pos = glm::vec3(0, 0, 0);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+    {
+        glfwMouseEnabled = !glfwMouseEnabled;
+        glfwSetInputMode(window, GLFW_CURSOR, glfwMouseEnabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    }
     camera.processInputs(window, eT);
 
 }
@@ -143,8 +341,8 @@ BOOL SciElectra3D::Start()
 		sTime = steady_clock::now();
         processInput(window);
         camera.updateCamera();
-
         this->Render();
+        DrawGuis();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

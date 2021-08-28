@@ -21,6 +21,14 @@
   <ItemGroup>
     <ClInclude Include="Source\Public\Camera.hpp" />
     <ClInclude Include="Source\Public\Electra3D.hpp" />
+    <ClInclude Include="Source\Public\imconfig.h" />
+    <ClInclude Include="Source\Public\imgui.h" />
+    <ClInclude Include="Source\Public\imgui_impl_glfw.h" />
+    <ClInclude Include="Source\Public\imgui_impl_opengl3.h" />
+    <ClInclude Include="Source\Public\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Source\Public\imgui_internal.h" />
+    <ClInclude Include="Source\Public\imstb_rectpack.h" />
+    <ClInclude Include="Source\Public\imstb_textedit.h" />
     <ClInclude Include="Source\Public\Model.hpp" />
     <ClInclude Include="Source\Public\SciElectra3D.hpp" />
     <ClInclude Include="Source\Public\Shader.hpp" />
@@ -32,6 +40,12 @@
     <ClCompile Include="Source\Private\SciElectra3D.cpp" />
     <ClCompile Include="Source\Private\WinMain.cpp" />
     <ClCompile Include="Source\Public\Camera.cpp" />
+    <ClCompile Include="Source\Public\imgui.cpp" />
+    <ClCompile Include="Source\Public\imgui_draw.cpp" />
+    <ClCompile Include="Source\Public\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Source\Public\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Source\Public\imgui_tables.cpp" />
+    <ClCompile Include="Source\Public\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -145,7 +159,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\Programs\libs\assimp-3.3.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Programs\libs\assimp-3.3.1\include;D:\Desktop\Repos\2021\SciElectra\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BrowseInformation>true</BrowseInformation>
     </ClCompile>

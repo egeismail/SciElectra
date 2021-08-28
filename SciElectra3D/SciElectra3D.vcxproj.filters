@@ -30,6 +30,14 @@
     <ClInclude Include="Source\Public\stb_image.h">
       <Filter>Source\Public</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Public\imconfig.h" />
+    <ClInclude Include="Source\Public\imgui.h" />
+    <ClInclude Include="Source\Public\imgui_impl_glfw.h" />
+    <ClInclude Include="Source\Public\imgui_impl_opengl3.h" />
+    <ClInclude Include="Source\Public\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Source\Public\imgui_internal.h" />
+    <ClInclude Include="Source\Public\imstb_rectpack.h" />
+    <ClInclude Include="Source\Public\imstb_textedit.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Private\Electra3D.cpp">
@@ -43,6 +51,12 @@
     </ClCompile>
     <ClCompile Include="Source\Public\Camera.cpp" />
     <ClCompile Include="Source\Private\glad.c" />
+    <ClCompile Include="Source\Public\imgui.cpp" />
+    <ClCompile Include="Source\Public\imgui_draw.cpp" />
+    <ClCompile Include="Source\Public\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Source\Public\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Source\Public\imgui_tables.cpp" />
+    <ClCompile Include="Source\Public\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
