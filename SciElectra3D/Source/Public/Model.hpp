@@ -6,6 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <vector>
+#include <Windows.h>
 #include "Shader.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_STATIC
@@ -175,7 +176,7 @@ public:
 	vector<Mesh>    meshes;
 private:
 	string directory;
-
+	char modelPath[MAX_PATH];
 	void loadModel(string path);
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
@@ -184,7 +185,8 @@ private:
 
 inline Model::Model(const char *path)
 {
-	loadModel(path);
+	GetFullPathNameA(path, MAX_PATH, modelPath, nullptr);
+	loadModel(modelPath);
 }
 inline Model::Model()
 {

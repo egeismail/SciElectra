@@ -6,7 +6,7 @@
 #include "./../Public/SciElectra3D.hpp"
 #include <iostream>
 #include <filesystem>
-
+#include <math.h>
 
 void attach_console()
 {
@@ -28,47 +28,68 @@ void attach_console()
 }
 
 static SciElectra3D simulation;
-
-void scenario_test3d(SciElectra3D& simulation,RECT windowRect) {
+static Entity *targetEntity;
+void scenario_test3d(SciElectra3D *simulation) {
     
-    simulation.camera.pos = glm::vec3(24.0f, 0.0f, 0.0f);
+    simulation->camera.pos = glm::vec3(24.0f, 0.0f, 0.0f);
 
-    simulation.camera.updateCamera();
-    char md[] = "TestModels\\backpack.obj";
-    char fullFilename[MAX_PATH];
-    GetFullPathNameA(md, MAX_PATH, fullFilename, nullptr);
-    cout << fullFilename << std::endl;
-    Model backpack(fullFilename);
+    simulation->camera.updateCamera();
+    static Model nanosuit("TestModels\\gordon\\gordon.obj");
+
     Entity backpack_entity(
         glm::vec3(.0f, .0f, .0f),
         glm::vec3(.0f, .0f, .0f),
         glm::vec3(.0f, .0f, .0f),
+        1.0f,
         10.0f,
-        backpack
+        nanosuit
     );
-
-    simulation.electra.addEntity(backpack_entity);
-    simulation.mainShader = Shader("Shaders\\testVertex.hlsl","Shaders\\testFragment.hlsl");
-    if (!simulation.mainShader.vertexIsReady) {
+    Light lighten(
+        LightType::Diffuse,
+        glm::vec3((float)0xfd / (float)0xff, (float)0x70 / (float)0xff, 0.0f));
+    Entity light_entity(
+        glm::vec3(6.0f, .0f, .0f),
+        glm::vec3(.0f, .0f, .0f),
+        glm::vec3(.0f, .0f, .0f),
+        0.1f,
+        10.0f,
+        nanosuit,
+        lighten
+    );
+    simulation->electra.addEntity(light_entity);
+    targetEntity = simulation->electra.getEntity(simulation->electra.addEntity(backpack_entity));
+    simulation->mainShader = Shader("Shaders\\testVertex.hlsl","Shaders\\testFragment.hlsl");
+    if (!simulation->mainShader.vertexIsReady) {
         std::cout << "Vertex shader not found." << std::endl;
     }
-    if (!simulation.mainShader.fragmentIsReady) {
+    if (!simulation->mainShader.fragmentIsReady) {
         std::cout << "Fragment shader not found."<< std::endl;
     }
     
-    if (simulation.mainShader.compile()) {
+    if (simulation->mainShader.compile()) {
         std::cout << "Successfully compiled"<< std::endl;
     }
     else {
         std::cout << "Compile failed"<< std::endl;
     }
+
+}
+static float buffer = 0.0f,
+             speed = 1.0f,
+             radius = 17.0f;
+void onTick(SciElectra3D* simulation) {
+    if (targetEntity) {
+        targetEntity->pos.x = radius * sinf(buffer * speed);
+        targetEntity->pos.y = 130.0f;
+        targetEntity->pos.z = radius*cosf(buffer*speed);
+        buffer += simulation->eT;
+    }
 }
 int CALLBACK WinMain(HINSTANCE,HINSTANCE,LPSTR,INT){
     attach_console();
-    simulation.InitializeWindow();
-    RECT windowRect;
-    GetWindowRect(simulation.hWnd, &windowRect);
-    scenario_test3d(simulation, windowRect);
+    simulation.onLoad = scenario_test3d;
+    simulation.onTick = onTick;
+    simulation.InitializeWindow(); 
     return simulation.Start();
 }
 

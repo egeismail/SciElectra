@@ -23,12 +23,14 @@
     <ClInclude Include="Source\Public\Electra3D.hpp" />
     <ClInclude Include="Source\Public\imconfig.h" />
     <ClInclude Include="Source\Public\imgui.h" />
+    <ClInclude Include="Source\Public\imgui_implements.h" />
     <ClInclude Include="Source\Public\imgui_impl_glfw.h" />
     <ClInclude Include="Source\Public\imgui_impl_opengl3.h" />
     <ClInclude Include="Source\Public\imgui_impl_opengl3_loader.h" />
     <ClInclude Include="Source\Public\imgui_internal.h" />
     <ClInclude Include="Source\Public\imstb_rectpack.h" />
     <ClInclude Include="Source\Public\imstb_textedit.h" />
+    <ClInclude Include="Source\Public\Light.hpp" />
     <ClInclude Include="Source\Public\Model.hpp" />
     <ClInclude Include="Source\Public\SciElectra3D.hpp" />
     <ClInclude Include="Source\Public\Shader.hpp" />
@@ -39,7 +41,6 @@
     <ClCompile Include="Source\Private\glad.c" />
     <ClCompile Include="Source\Private\SciElectra3D.cpp" />
     <ClCompile Include="Source\Private\WinMain.cpp" />
-    <ClCompile Include="Source\Public\Camera.cpp" />
     <ClCompile Include="Source\Public\imgui.cpp" />
     <ClCompile Include="Source\Public\imgui_draw.cpp" />
     <ClCompile Include="Source\Public\imgui_impl_glfw.cpp" />

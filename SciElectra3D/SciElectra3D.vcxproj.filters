@@ -10,6 +10,9 @@
     <Filter Include="Source\Public">
       <UniqueIdentifier>{f143fff2-51ea-4827-b044-b7609e0ce3a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\External">
+      <UniqueIdentifier>{484e870d-3506-4af7-b1d9-1ce7a88703a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Public\SciElectra3D.hpp">
@@ -30,14 +33,36 @@
     <ClInclude Include="Source\Public\stb_image.h">
       <Filter>Source\Public</Filter>
     </ClInclude>
-    <ClInclude Include="Source\Public\imconfig.h" />
-    <ClInclude Include="Source\Public\imgui.h" />
-    <ClInclude Include="Source\Public\imgui_impl_glfw.h" />
-    <ClInclude Include="Source\Public\imgui_impl_opengl3.h" />
-    <ClInclude Include="Source\Public\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="Source\Public\imgui_internal.h" />
-    <ClInclude Include="Source\Public\imstb_rectpack.h" />
-    <ClInclude Include="Source\Public\imstb_textedit.h" />
+    <ClInclude Include="Source\Public\Light.hpp">
+      <Filter>Source\Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imconfig.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imgui.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imgui_impl_glfw.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imgui_impl_opengl3.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imgui_impl_opengl3_loader.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imgui_internal.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imstb_rectpack.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imstb_textedit.h">
+      <Filter>Source\External</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Public\imgui_implements.h">
+      <Filter>Source\Public</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Private\Electra3D.cpp">
@@ -49,14 +74,27 @@
     <ClCompile Include="Source\Private\WinMain.cpp">
       <Filter>Source\Private</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Public\Camera.cpp" />
-    <ClCompile Include="Source\Private\glad.c" />
-    <ClCompile Include="Source\Public\imgui.cpp" />
-    <ClCompile Include="Source\Public\imgui_draw.cpp" />
-    <ClCompile Include="Source\Public\imgui_impl_glfw.cpp" />
-    <ClCompile Include="Source\Public\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="Source\Public\imgui_tables.cpp" />
-    <ClCompile Include="Source\Public\imgui_widgets.cpp" />
+    <ClCompile Include="Source\Private\glad.c">
+      <Filter>Source\External</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Public\imgui.cpp">
+      <Filter>Source\External</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Public\imgui_draw.cpp">
+      <Filter>Source\External</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Public\imgui_impl_glfw.cpp">
+      <Filter>Source\External</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Public\imgui_impl_opengl3.cpp">
+      <Filter>Source\External</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Public\imgui_tables.cpp">
+      <Filter>Source\External</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Public\imgui_widgets.cpp">
+      <Filter>Source\External</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -9,7 +9,7 @@ static SciElectra3D* hselectra;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    if (hselectra == NULL) {
+    if (!hselectra) {
         void* pp = glfwGetWindowUserPointer(window);
         hselectra = static_cast<SciElectra3D*>(glfwGetWindowUserPointer(window));
         return;
@@ -24,12 +24,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (hselectra == NULL){
+    if (!hselectra){
         void* pp = glfwGetWindowUserPointer(window);
         hselectra = static_cast<SciElectra3D*>(glfwGetWindowUserPointer(window));
         return;
     }
-    hselectra->camera.processMouseInput(window, xpos, ypos);
+    hselectra->processMouseInput(window, xpos, ypos);
     
 
 }
@@ -66,7 +66,7 @@ HRESULT SciElectra3D::InitializeWindow()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     window = glfwCreateWindow(WIDTH, HEIGHT, "SciElectra", NULL, NULL);
-    if (window == NULL)
+    if (!window)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -76,7 +76,6 @@ HRESULT SciElectra3D::InitializeWindow()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
@@ -93,10 +92,14 @@ HRESULT SciElectra3D::InitializeWindow()
     ImGuiIO& io = ImGui::GetIO(); (void)io;
 
     io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\Verdana.ttf", 18.0f * highDPIscaleFactor, NULL, NULL);
+    glfwMaximizeWindow(window);
+    int w, h;
+    glfwGetWindowSize(window, &w, &h);
+    framebuffer_size_callback(window, w, h);
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
-    glViewport(0, 0, WIDTH, HEIGHT);
+    glViewport(0, 0, w, h);
     glEnable(GL_DEPTH_TEST);
 
 
@@ -113,15 +116,20 @@ float cubicBezier(float y1, float y2, float normalized) {
     return 3 * normalized * pow((1 - normalized), 2) * y1 + 3 * pow(normalized, 2) * (1 - normalized) * y2 + pow(normalized, 3);
 }
 
-int SciElectra3D::WindowRectUpdate()
-{
-    return 0;
-}
-void SciElectra3D::DrawGuis()
+void SciElectra3D::DrawGuis(float deltaTime)
 {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
+
+    //if (sL_hasLoader) {
+    //    ImGui::Begin("Progress Indicators");
+    //        const ImU32 col = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
+    //        const ImU32 bg = ImGui::GetColorU32(ImGuiCol_Button);
+    //        const ImVec2  vvsz = ImVec2(400, 6);
+    //        ImGui::BufferingBar("##buffer_bar", sL_percent, vvsz,bg, col);
+    //    ImGui::End();
+    //}
 
     if (ShowDebugWindow) {
         ImGui::Begin("SciElectra Debug", &ShowDebugWindow);
@@ -216,7 +224,28 @@ void SciElectra3D::DrawGuis()
         //sst.str(std::string()); //Shift Press
         //sst << "SHIFT: " << shiftDown;
         //ImDui::Text(sst.str().c_str());
-
+        if(mainShader.compiled){
+            if (ImGui::Button("Reload Shader")){
+                mainShader.reload();
+            }
+        }
+        else {
+            if (!mainShader.vertexIsReady && !mainShader.fragmentIsReady) {
+                ImGui::Text("Loading shader...");
+            }
+            if (mainShader.errorOnFragment || mainShader.errorOnVertex) {
+                if (ImGui::Button("Compile Shader")) {
+                    mainShader.reload();
+                }
+            }
+            if (mainShader.errorOnFragment) {
+                ImGui::Text("Error on compiling fragment shader.");
+            }
+            if (mainShader.errorOnVertex) {
+                ImGui::Text("Error on compiling vertex shader.");
+            }
+            
+        }
         ImGui::Text("I-Simulation");
         sst.str(std::string()); //Camera Pos
         sst << "Camera Pos: " << "(" << camera.pos.x << "," << camera.pos.y << "," << camera.pos.z << ")";
@@ -262,8 +291,7 @@ void SciElectra3D::DrawGuis()
     }
     static bool MultiEffect = this->electra.Rules & Rules::MultiEffect ? true : false,
         NewtonianGravity = this->electra.Rules & Rules::NewtonianGravity ? true : false,
-        Collision = this->electra.Rules & Rules::Collision ? true : false,
-        CollisionWindow = this->electra.Rules & Rules::CollisionWindow ? true : false;
+        Collision = this->electra.Rules & Rules::Collision ? true : false;
     if (ShowSimulationSettings) {
         if (ImGui::Begin("Simulation Settings", &ShowSimulationSettings)) {
             ImGui::PushItemWidth(150);
@@ -278,15 +306,12 @@ void SciElectra3D::DrawGuis()
             ImGui::Checkbox("Multi Effect", &MultiEffect); ImGui::SameLine();
             ImGui::Checkbox("Newtonian Gravity", &NewtonianGravity);
             ImGui::Checkbox("Collision", &Collision); ImGui::SameLine();
-            ImGui::Checkbox("Window Collision", &CollisionWindow);
             if (MultiEffect != this->electra.Rules & Rules::MultiEffect > 0)
                 this->electra.Rules = MultiEffect ? this->electra.Rules | Rules::MultiEffect : this->electra.Rules & ~Rules::MultiEffect;
             if (NewtonianGravity != this->electra.Rules & Rules::NewtonianGravity > 0)
                 this->electra.Rules = NewtonianGravity ? this->electra.Rules | Rules::NewtonianGravity : this->electra.Rules & ~Rules::NewtonianGravity;
             if (Collision != this->electra.Rules & Rules::Collision > 0)
                 this->electra.Rules = Collision ? this->electra.Rules | Rules::Collision : this->electra.Rules & ~Rules::Collision;
-            if (CollisionWindow != this->electra.Rules & Rules::CollisionWindow > 0)
-                this->electra.Rules = CollisionWindow ? this->electra.Rules | Rules::CollisionWindow : this->electra.Rules & ~Rules::CollisionWindow;
             ImGui::End();
         };
         
@@ -306,6 +331,7 @@ void SciElectra3D::DrawGuis()
 float SeqA051109(unsigned int n) {
     return ((n % 3) * (n % 3) + 1) * pow(10, int(n / 3));
 }
+
 int SciElectra3D::ShowGrids() {
     if (!showGrids)
         return 0;
@@ -319,13 +345,15 @@ int SciElectra3D::ShowVectors()
     
     return 0;
 }
+
+#define glfwGetKeyOnce(WINDOW, KEY)	(glfwGetKey(WINDOW, KEY) ?	(keyOnce[KEY] ? false : (keyOnce[KEY] = true)) : (keyOnce[KEY] = false))
 void SciElectra3D::processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)
         camera.pos = glm::vec3(0, 0, 0);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+    if (glfwGetKeyOnce(window, GLFW_KEY_LEFT_ALT))
     {
         glfwMouseEnabled = !glfwMouseEnabled;
         glfwSetInputMode(window, GLFW_CURSOR, glfwMouseEnabled ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
@@ -333,16 +361,25 @@ void SciElectra3D::processInput(GLFWwindow* window)
     camera.processInputs(window, eT);
 
 }
+
+void SciElectra3D::processMouseInput(GLFWwindow* window, double xpos, double ypos)
+{
+    if (!glfwMouseEnabled)
+        camera.processMouseInput(window, xpos, ypos);
+}
 BOOL SciElectra3D::Start()
 {
     simulationStartTime = steady_clock::now();
     steady_clock::time_point lastRender = steady_clock::now();
+    if (onLoad) {
+        onLoad(this);
+    }
     while (!this->isDone && !glfwWindowShouldClose(window)) {
 		sTime = steady_clock::now();
         processInput(window);
         camera.updateCamera();
         this->Render();
-        DrawGuis();
+        DrawGuis(eT ? eT : 0.001f);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -354,6 +391,9 @@ BOOL SciElectra3D::Start()
         eT = (duration_cast<microseconds>(frameTime).count() / 10e+5f);
         fps = 1.f / (duration_cast<microseconds>(frameTime).count() / 10e+5f);
         simElapsedTime = (duration_cast<microseconds>(elapsedTime).count() / 10e+5f);
+        if (onTick) {
+            onTick(this);
+        }
 		/*Physics*/
         /*SyncTick = (unsigned int)(eT / electra.tickTimef);
 		for (int tickIteration = 0; tickIteration < SyncTick; tickIteration++)
@@ -368,19 +408,23 @@ BOOL SciElectra3D::Start()
  BBBBBBBBBBBBBBBBIIIIIIIIIIIIIIIIG TOODOOOO
     MAKE CAMERA POS MOVEMENT x^2 LIKE
 */
-int SciElectra3D::RegisterWindows() {
-    return 0;
-}
-
 BOOL SciElectra3D::Render() {
-    glClearColor(31 / 255.0f, 40 / 255.0f, 45/255.0f, 1.0f);
+    glClearColor(31 / 255.0f, 40 / 255.0f, 45 / 255.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (mainShader.compiled) {
         mainShader.use();
-        for (Entity &ent : electra.entities)
+        for (Entity& ent : electra.entities)
         {
-        
+            for (Entity& entL : electra.entities)
+            {
+                if (!entL.usingLight) continue;
+
+                mainShader.setVec3("lightPos", entL.pos);
+                entL.light.uploadLights(mainShader);
+            }
             camera.prepareProjection(mainShader);
+            ent.updateModelMatrix();
+            mainShader.setVec3("viewPos", camera.pos);
             mainShader.setMat4("model", ent.model_m);
             ent.model.Draw(mainShader);
         }

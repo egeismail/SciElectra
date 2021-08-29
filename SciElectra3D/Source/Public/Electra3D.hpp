@@ -1,44 +1,45 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
 #include <list>
 #include <chrono>
 #include "Model.hpp"
+#include "Light.hpp"
+
 using namespace std::chrono;
 
 #define ENTITY_LIMIT 1024
 
 
-typedef unsigned char DrawType;
 enum Rules {
 	MultiEffect = 0x1, // When calculating velocity in some rules, calculates affecting and affected entities in same tick
 					   // I do not decided which one better calculates but until i will close
 	NewtonianGravity=0x2,
-	Collision = 0x4,
-	CollisionWindow = 0x80000000,
+	Collision = 0x4
 };
-
-struct Entity {
+class Entity
+{
+public:
+	Entity(glm::vec3 pos_, glm::vec3 rotation_, glm::vec3 velocity_, float scale_, float mass_, Model model_);
+	Entity(glm::vec3 pos_, glm::vec3 rotation_, glm::vec3 velocity_, float scale_, float mass_, Model model_, Light light_);
+	~Entity();
 	size_t id;
 	glm::vec3 pos;
 	glm::vec3 velocity;
 	glm::vec3 rotation;
 	glm::mat4 model_m = glm::mat4(1.0f);
+	float scale;
 	float mass = 1;
-	Model model;
+	bool usingLight = false;
 	bool UIVisible = false;
-	Entity(glm::vec3 pos_,glm::vec3 rotation_, glm::vec3 velocity_,float mass_,Model model_) {
-		pos = pos_;
-		velocity = velocity_;
-		rotation = rotation_;
-		mass = mass_;
-		model = model_;
-		updateModelMatrix();
-
-	}
+	Model model;
+	Light light;
 	void updateModelMatrix();
-	
+private:
 
 };
+
+
 class Electra3D
 {
 public:
@@ -60,6 +61,7 @@ public:
 	/*Interaction*/
 	int addEntity(Entity entity);
 	int removeEntity(size_t id);
+	Entity* getEntity(size_t id);
 	int ProcessPosition();
 	/*RULES*/
 	int NewtonianGravity();

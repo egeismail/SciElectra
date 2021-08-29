@@ -1,8 +1,8 @@
 #pragma once
 
-#define WINDOW_WIDTH  800
-#define WINDOW_HEIGHT 600
-
+#define WINDOW_WIDTH  1600
+#define WINDOW_HEIGHT 900
+#define GLFW_EXPOSE_NATIVE_WIN32
 
 
 #include <sstream>
@@ -10,8 +10,8 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <thread>
 
-#define GLFW_EXPOSE_NATIVE_WIN32
 #include <glad/glad.h> 
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
@@ -24,13 +24,21 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+
 #include "Electra3D.hpp"
-#include "Camera.hpp"
 #include "Shader.hpp"
+#include "Camera.hpp"
+
+
+
+
+
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_implements.h"
+
 
 using namespace std;
 using namespace std::chrono;
@@ -65,17 +73,18 @@ public:
 #pragma endregion
 #pragma region Window-OpenGL
 	void processInput(GLFWwindow* window);
+	void processMouseInput(GLFWwindow* window, double xpos, double ypos);
 	HWND hWnd;
 	GLFWwindow* window;
 	int WIDTH = WINDOW_WIDTH, HEIGHT = WINDOW_HEIGHT;
 	GLint occlusionCullingSupported;
-	unsigned int SyncTick = 1;
-	int RegisterWindows();
+	char keyOnce[GLFW_KEY_LAST + 1];
+
 	float highDPIscaleFactor = 1.0;
 #pragma endregion
 #pragma region Render
 	BOOL Render();
-	void DrawGuis();
+	void DrawGuis(float deltaTime);
 	int DrawDebugText();
 	int DrawObjects();
 #pragma endregion
@@ -87,16 +96,25 @@ public:
 	RECT windowRectangle;
 	steady_clock::time_point simulationStartTime, sTime, eTime;
 	steady_clock::duration elapsedTime, frameTime;
+	unsigned int SyncTick = 1;
 	double fps,eT;
 	Camera camera;
 	float zoom = 1;
 	float zoomLinearer = 0;
 	size_t renderingObjects;
-	int WindowRectUpdate();
+
+	thread scenarioLoaderThread;
+	void (*onLoad)(SciElectra3D*);
+	void (*onTick)(SciElectra3D*);
+	float sL_percent = 0.0f;
+	bool sL_hasLoader = false;
+	std::string sL_state;
+
 	bool showGrids = true;
 	bool showVectors = true;
 	bool showAngles = false;
 	bool angleWidthOffset = 20;
+	void setTargetScenario(void (*callback)(SciElectra3D*) );
 	int ShowGrids();
 	int ShowVectors();
 #pragma endregion
@@ -114,7 +132,7 @@ public:
 		0xFF00FF,
 		0x800080
 	};
-	bool glfwMouseEnabled = false;
+	bool glfwMouseEnabled = true;
 	bool ShowDebugWindow = true,
 		ShowSimulationSettings = false,
 		ShowGraphicalSettings = false,
