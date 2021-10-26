@@ -34,30 +34,31 @@ void scenario_test3d(SciElectra3D *simulation) {
     simulation->camera.pos = glm::vec3(24.0f, 0.0f, 0.0f);
 
     simulation->camera.updateCamera();
-    static Model nanosuit("TestModels\\gordon\\gordon.obj");
+    static Model ball("TestModels\\nanosuit\\nanosuit.obj");
+    static Model cube("TestModels\\basic_models\\cube.obj");
 
-    Entity backpack_entity(
+    Entity cube_entity(
         glm::vec3(.0f, .0f, .0f),
         glm::vec3(.0f, .0f, .0f),
         glm::vec3(.0f, .0f, .0f),
         1.0f,
         10.0f,
-        nanosuit
+        cube
     );
     Light lighten(
         LightType::Diffuse,
         glm::vec3((float)0xfd / (float)0xff, (float)0x70 / (float)0xff, 0.0f));
     Entity light_entity(
-        glm::vec3(6.0f, .0f, .0f),
+        glm::vec3(15.0f, .0f, .0f),
         glm::vec3(.0f, .0f, .0f),
         glm::vec3(.0f, .0f, .0f),
         0.1f,
-        10.0f,
-        nanosuit,
+        1.0f,
+        ball,
         lighten
     );
     simulation->electra.addEntity(light_entity);
-    targetEntity = simulation->electra.getEntity(simulation->electra.addEntity(backpack_entity));
+    targetEntity = simulation->electra.getEntity(simulation->electra.addEntity(cube_entity));
     simulation->mainShader = Shader("Shaders\\testVertex.hlsl","Shaders\\testFragment.hlsl");
     if (!simulation->mainShader.vertexIsReady) {
         std::cout << "Vertex shader not found." << std::endl;
@@ -80,7 +81,6 @@ static float buffer = 0.0f,
 void onTick(SciElectra3D* simulation) {
     if (targetEntity) {
         targetEntity->pos.x = radius * sinf(buffer * speed);
-        targetEntity->pos.y = 130.0f;
         targetEntity->pos.z = radius*cosf(buffer*speed);
         buffer += simulation->eT;
     }
